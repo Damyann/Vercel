@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <h1>Въведете своето име и имейл</h1>
+  <form id="loginForm">
+    <div class="field">
+      <label for="name">Име:</label>
+      <input type="text" id="name" name="name" placeholder="Пример: Kai" required>
+    </div>
+    <div class="field">
+      <label for="email">Имейл:</label>
+      <input type="text" id="email" name="email" placeholder="Email" required>
+    </div>
+    <button type="submit">Вход</button>
+  </form>
+
+  <div id="notification"></div>
+
+  <script src="/script.js"></script>
+</body>
+</html>
