@@ -3,33 +3,18 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
+  
+    const response = await fetch('/api/checkLogin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email })
+    });
+  
+    const result = await response.json();
+  
     const notification = document.getElementById('notification');
-  
-    if (!name || !email) {
-      notification.textContent = 'Попълнете двете полета';
-      return;
-    }
-  
-    try {
-      const response = await fetch('/api/checkLogin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email })
-      });
-  
-      const result = await response.json();
-  
-      if (response.ok) {
-        notification.style.color = 'green';
-        notification.textContent = result.message;
-      } else {
-        notification.style.color = 'red';
-        notification.textContent = result.error;
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      notification.style.color = 'red';
-      notification.textContent = 'Възникна грешка при изпращането.';
-    }
+    notification.textContent = result.message || result.error || 'Възникна грешка.';
+    notification.className = 'notification show ' + (response.ok ? 'success' : '');
+    setTimeout(() => notification.classList.remove('show'), 3000);
   });
   

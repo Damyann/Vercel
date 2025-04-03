@@ -1,11 +1,12 @@
 export default async function (req, res) {
     if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Методът не е позволен.' });
+      return res.status(405).json({ error: 'Method not allowed' });
     }
   
     const { name, email } = req.body;
+  
     if (!name || !email) {
-      return res.status(400).json({ error: 'Попълнете двете полета' });
+      return res.status(400).json({ error: 'Моля, попълнете и двете полета' });
     }
   
     const sheetId = process.env.SHEET_ID;
@@ -27,14 +28,14 @@ export default async function (req, res) {
   
       const match = rows.find(row => row[0]?.trim().toLowerCase() === inputName);
   
-      if (match && match[1]?.trim().toLowerCase() === inputEmail) {
-        return res.status(200).json({ message: 'вие се вписахте' });
-      } else {
-        return res.status(400).json({ error: 'Грешно име или имейл!' });
+      if (!match || match[1]?.trim().toLowerCase() !== inputEmail) {
+        return res.status(400).json({ error: 'Грешни данни. Моля, опитайте отново!' });
       }
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Вътрешна грешка.' });
+  
+      return res.status(200).json({ message: 'Вписването е успешно!' });
+  
+    } catch {
+      return res.status(500).json({ error: 'Вътрешна грешка' });
     }
   }
   

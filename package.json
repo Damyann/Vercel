@@ -1,14 +1,12 @@
 {
-  "name": "vercel",
+  "name": "vercel-login",
   "version": "1.0.0",
-  "main": "server.js",
   "type": "module",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "dev": "echo 'Vercel използва serverless – няма нужда от локален dev script'",
+    "start": "echo 'Vercel стартира автоматично – няма нужда от start script'"
   },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }

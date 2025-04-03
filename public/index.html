@@ -1,26 +1,37 @@
 <!DOCTYPE html>
-<html lang="bg">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Вход</title>
-  <link rel="stylesheet" href="/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
+  <link rel="stylesheet" href="/styles/base.css">
+  <link rel="stylesheet" href="/styles/header.css">
+  <link rel="stylesheet" href="/styles/form.css">
+  <link rel="stylesheet" href="/styles/notification.css">
 </head>
 <body>
-  <h1>Въведете своето име и имейл</h1>
-  <form id="loginForm">
-    <div class="field">
-      <label for="name">Име:</label>
-      <input type="text" id="name" name="name" placeholder="Пример: Kai" required>
-    </div>
-    <div class="field">
-      <label for="email">Имейл:</label>
-      <input type="text" id="email" name="email" placeholder="Email" required>
-    </div>
-    <button type="submit">Вход</button>
-  </form>
 
-  <div id="notification"></div>
+  <header class="header-bar">
+    <img src="https://win-models.com/build/images/logo.2f696657.svg" alt="Logo" class="logo">
+  </header>
+
+  <main class="main-content">
+    <h1>Въведете своето име и имейл</h1>
+
+    <form id="loginForm" class="login-form" autocomplete="off">
+      <div class="form-group">
+        <div class="form-field">
+          <input type="text" id="name" name="name" placeholder="Пример: Kai" autocomplete="off">
+        </div>
+        <div class="form-field">
+          <input type="text" id="email" name="email" placeholder="Емайл" autocomplete="off">
+        </div>
+      </div>
+      <button type="submit" class="submit-button">Вход</button>
+    </form>
+
+    <div id="notification" class="notification"></div>
+  </main>
 
   <script src="/script.js"></script>
 </body>
