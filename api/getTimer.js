@@ -22,17 +22,17 @@ export default async function (req, res) {
     function parseDate(str) {
       if (str.includes('/')) {
         const [m, d, y] = str.split('/').map(Number);
-        return DateTime.fromObject({ year: y, month: m, day: d }).toJSDate();
+        return DateTime.fromObject({ year: y, month: m, day: d }).setZone('Europe/Sofia').toJSDate();
       } else if (str.includes('.')) {
         const [d, m, y] = str.split('.').map(Number);
-        return DateTime.fromObject({ year: y, month: m, day: d }).toJSDate();
+        return DateTime.fromObject({ year: y, month: m, day: d }).setZone('Europe/Sofia').toJSDate();
       }
       return null;
     }
 
     const start = parseDate(values[0]);
     const end = parseDate(values[1]);
-    const now = new Date();
+    const now = DateTime.now().setZone('Europe/Sofia').toJSDate(); // Софийско време
 
     if (!start || !end || isNaN(start) || isNaN(end)) {
       return res.status(400).json({ error: 'Invalid date format' });
@@ -47,7 +47,7 @@ export default async function (req, res) {
 
     return res.status(200).json({
       status: 'open',
-      remaining: end - now
+      remaining: end - now // Изчисляваме остатъчното време
     });
 
   } catch (error) {

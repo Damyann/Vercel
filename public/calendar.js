@@ -19,7 +19,7 @@ export function renderCalendar(year, month, userName) {
       cell.className = 'calendar-cell';
   
       const currentDate = new Date(year, month - 1, d);
-      const dayOfWeek = currentDate.getDay(); // 0-неделя, 6-събота
+      const dayOfWeek = currentDate.getDay(); 
   
       if (dayOfWeek === 0 || dayOfWeek === 6) {
         cell.classList.add('weekend');
