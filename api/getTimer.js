@@ -19,6 +19,7 @@ export default async function (req, res) {
       return res.status(400).json({ error: 'Invalid timer data' });
     }
 
+    // Разделяме датите и ги преобразуваме в Софийска часова зона (Europe/Sofia)
     const [m, d, y] = values[0].split('/');
     const [d2, m2, y2] = values[1].split('/');
 
