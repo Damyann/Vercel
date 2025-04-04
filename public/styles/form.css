@@ -1,23 +1,40 @@
 .main-content {
+  position: relative;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding: 20px;
-  margin-top: 140px;
+  transform: translateY(-150px);
+  position: relative; /* за позициониране на notification */
 }
 
 .login-form {
   background-color: rgba(255, 255, 255, 0.95);
   padding: 40px;
-  border: 3px solid #FFD700; /* solid yellow border */
+  border: 3px solid #FFD700;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: fit-content;
+  z-index: 1;
+}
+
+.login-form h1 {
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #000;
+}
+
+.form-layout {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 20px;
-  max-width: fit-content;
 }
 
 .form-group {
@@ -29,7 +46,7 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  max-width: 200px;
+  max-width: 210px; /* 🔼 увеличаваме ширината с +10px */
 }
 
 .form-field input {
@@ -60,8 +77,8 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
-  height: fit-content;
   align-self: center;
+  height: fit-content;
 }
 
 .submit-button:hover {

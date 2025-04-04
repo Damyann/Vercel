@@ -1,0 +1,74 @@
+#countdown-timer {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 14px 22px;
+  font-size: 18px;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  border-radius: 12px;
+  border: 3px solid gold;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+  z-index: 9999;
+  text-align: center;
+  line-height: 1.4;
+}
+
+#countdown-timer .value {
+  font-size: 20px;
+  color: #fff;
+  display: block;
+  margin-top: 6px;
+}
+
+#countdown-timer.closed {
+  border-color: red;
+  color: red;
+}
+
+#countdown-timer .loading {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ccc;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+#countdown-timer.flash {
+  animation: flash-border 0.8s ease-in-out 5;
+  box-shadow: 0 0 0 0 red;
+}
+
+@keyframes flash-border {
+  0% {
+    border-color: red;
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.5);
+  }
+  25% {
+    border-color: white;
+    box-shadow: 0 0 10px 4px rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    border-color: red;
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.5);
+  }
+  75% {
+    border-color: white;
+    box-shadow: 0 0 10px 4px rgba(255, 255, 255, 0.4);
+  }
+  100% {
+    border-color: red;
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.5);
+  }
+}
+
+
+
+

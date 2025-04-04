@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/styles/header.css">
   <link rel="stylesheet" href="/styles/form.css">
   <link rel="stylesheet" href="/styles/notification.css">
+  <link rel="stylesheet" href="/styles/timer.css">
 </head>
 <body>
 
@@ -16,23 +17,26 @@
   </header>
 
   <main class="main-content">
-    <h1>Въведете своето име и имейл</h1>
-
     <form id="loginForm" class="login-form" autocomplete="off">
-      <div class="form-group">
-        <div class="form-field">
-          <input type="text" id="name" name="name" placeholder="Пример: Kai" autocomplete="off">
+      <h1>Въведете своето име и имейл</h1>
+      <div class="form-layout">
+        <div class="form-group">
+          <div class="form-field">
+            <input type="text" id="name" name="name" placeholder="Пример: Kai" autocomplete="off">
+          </div>
+          <div class="form-field">
+            <input type="text" id="email" name="email" placeholder="Емайл" autocomplete="off">
+          </div>
         </div>
-        <div class="form-field">
-          <input type="text" id="email" name="email" placeholder="Емайл" autocomplete="off">
-        </div>
+        <button type="submit" class="submit-button">Вход</button>
       </div>
-      <button type="submit" class="submit-button">Вход</button>
     </form>
 
     <div id="notification" class="notification"></div>
   </main>
 
   <script src="/script.js"></script>
+  <script src="/timer.js"></script>
+
 </body>
 </html>
