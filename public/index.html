@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bg">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login</title>
+  <title>Вход</title>
+
+  <!-- CSS стилове -->
   <link rel="stylesheet" href="/styles/base.css">
   <link rel="stylesheet" href="/styles/header.css">
   <link rel="stylesheet" href="/styles/form.css">
   <link rel="stylesheet" href="/styles/notification.css">
   <link rel="stylesheet" href="/styles/timer.css">
-  <link rel="stylesheet" href="/styles/responsive.css">
+  <link rel="stylesheet" href="/styles/calendar.css">
 </head>
 <body>
 
@@ -26,7 +28,7 @@
             <input type="text" id="name" name="name" placeholder="Пример: Kai" autocomplete="off">
           </div>
           <div class="form-field">
-            <input type="text" id="email" name="email" placeholder="Емайл" autocomplete="off">
+            <input type="text" id="email" name="email" placeholder="Имейл" autocomplete="off">
           </div>
         </div>
         <button type="submit" class="submit-button">Вход</button>
@@ -36,7 +38,8 @@
     <div id="notification" class="notification"></div>
   </main>
 
-  <script src="/script.js"></script>
+  <!-- JS файлове -->
+  <script type="module" src="/script.js"></script>
   <script src="/timer.js"></script>
 
 </body>

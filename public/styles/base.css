@@ -1,7 +1,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  font-size: 16px; /* базов размер, който може да се мащабира */
+  font-size: 16px;
   overflow-x: hidden;
 }
 

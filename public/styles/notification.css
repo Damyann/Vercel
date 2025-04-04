@@ -2,7 +2,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%) translateY(0);
-  top: calc(50% + 145px);
+  top: calc(50%); /* Преместваме нотификацията по-нагоре с 25px */
   background-color: #f44336;
   color: white;
   padding: 12px 20px;

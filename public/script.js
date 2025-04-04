@@ -1,35 +1,24 @@
+import { renderCalendar } from './calendar.js';
+
 const form = document.getElementById('loginForm');
 const notification = document.getElementById('notification');
 
 form.addEventListener('submit', async (e) => {
-  e.preventDefault();  // Прекъсваме стандартното поведение на формата
+  e.preventDefault();
 
   if (window.closedState) {
-    // Ако заявките са затворени
     const timer = document.getElementById('countdown-timer');
     timer.classList.add('flash');
     setTimeout(() => timer.classList.remove('flash'), 800);
 
-    notification.textContent = 'Не се опитвай да изпращаш заявка извън указаното време.';
-    notification.classList.add('show');
-
-    setTimeout(() => notification.classList.remove('show'), 3000);
-    return;  // Спираме изпращането на формата
+    showNotification('Не се опитвай да изпращаш заявка извън указаното време.');
+    return;
   }
 
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
 
-  // Проверяваме дали има попълнени полета
-  if (!name || !email) {
-    notification.textContent = 'Моля, попълнете и двете полета';
-    notification.classList.add('show');
-    setTimeout(() => notification.classList.remove('show'), 3000);
-    return;  // Спираме изпращането на формата
-  }
-
   try {
-    // Изпращаме заявка за влизане
     const response = await fetch('/api/checkLogin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -38,17 +27,38 @@ form.addEventListener('submit', async (e) => {
 
     const result = await response.json();
 
-    if (response.ok) {
-      notification.textContent = result.message;
-    } else {
-      notification.textContent = result.error;
-    }
+    if (response.ok && result.success) {
+      form.style.display = 'none';
 
-    notification.classList.add('show');
-    setTimeout(() => notification.classList.remove('show'), 3000);
+      // Премахваме стария календар, ако съществува
+      const existingCalendar = document.getElementById('calendar');
+      if (existingCalendar) {
+        existingCalendar.remove();
+      }
+
+      // Получаваме календара от API-то
+      const res = await fetch('/api/getCalendar');
+      const calendarData = await res.json();
+
+      if (res.ok) {
+        // Проверяваме, ако вече има рендериран календар, не добавяме нов
+        const existingCalendarCheck = document.getElementById('calendar');
+        if (!existingCalendarCheck) {
+          renderCalendar(calendarData.year, calendarData.month, name);
+        }
+      } else if (calendarData.error) {
+        showNotification(calendarData.error);
+      }
+    } else if (result.error) {
+      showNotification(result.error);
+    }
   } catch {
-    notification.textContent = 'Възникна грешка при изпращането.';
-    notification.classList.add('show');
-    setTimeout(() => notification.classList.remove('show'), 3000);
+    showNotification('Възникна грешка при изпращането.');
   }
 });
+
+function showNotification(message) {
+  notification.textContent = message;
+  notification.classList.add('show');
+  setTimeout(() => notification.classList.remove('show'), 3000);
+}

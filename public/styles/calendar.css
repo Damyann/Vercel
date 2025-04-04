@@ -1,0 +1,85 @@
+#calendar {
+    margin: 0 auto;
+    padding: 10px;
+    width: 100%;
+    max-width: calc(100% - 10px);
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 2px solid #FFD700;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .calendar-greeting {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+  }
+  
+  .calendar-cell {
+    background-color: white;
+    border: 2px solid #FFD700;
+    border-radius: 6px;
+    text-align: center;
+    padding: 14px;
+    font-weight: bold;
+    font-size: 16px;
+    transition: transform 0.2s ease;
+  }
+  
+  .calendar-cell:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+  }
+  
+  .calendar-cell.empty {
+    background: transparent;
+    border: none;
+  }
+  
+  .calendar-cell.weekend {
+    background-color: #fff3cd;
+    border-color: #ffcc00;
+    color: #333;
+  }
+  
+  @media (max-width: 600px) {
+    #calendar {
+      margin: 0 5px;
+      padding: 10px;
+      width: auto;
+      max-width: none;
+      transform: translateY(-10px); /* Вдигаме календара с 30px нагоре */
+    }
+  
+    .calendar-greeting {
+      font-size: 16px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+  
+    .calendar-grid {
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+  
+    .calendar-cell {
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 5px;
+    }
+  
+    .calendar-cell.weekend {
+      background-color: #fff3cd;
+      border-color: #ffcc00;
+    }
+  }
+  

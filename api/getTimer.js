@@ -16,24 +16,25 @@ export default async function (req, res) {
     const values = data.values?.[0];
 
     if (!values || values.length < 2) {
-      return res.status(400).json({ error: 'Invalid timer data' });
+      return res.status(400).json({ error: 'Missing timer data' });
     }
 
-    // Разделяме датите и ги преобразуваме в Софийска часова зона
-    const [m, d, y] = values[0].split('/');
-    const [d2, m2, y2] = values[1].split('/');
+    function parseDate(str) {
+      if (str.includes('/')) {
+        const [m, d, y] = str.split('/').map(Number);
+        return DateTime.fromObject({ year: y, month: m, day: d }).toJSDate();
+      } else if (str.includes('.')) {
+        const [d, m, y] = str.split('.').map(Number);
+        return DateTime.fromObject({ year: y, month: m, day: d }).toJSDate();
+      }
+      return null;
+    }
 
-    const start = DateTime.fromObject({ year: y, month: m, day: d })
-      .setZone('Europe/Sofia', { keepLocalTime: true })
-      .toJSDate();
+    const start = parseDate(values[0]);
+    const end = parseDate(values[1]);
+    const now = new Date();
 
-    const end = DateTime.fromObject({ year: y2, month: m2, day: d2 })
-      .setZone('Europe/Sofia', { keepLocalTime: true })
-      .toJSDate();
-
-    const now = new Date(); // Местно време на сървъра (UTC+2/3)
-
-    if (isNaN(start) || isNaN(end)) {
+    if (!start || !end || isNaN(start) || isNaN(end)) {
       return res.status(400).json({ error: 'Invalid date format' });
     }
 

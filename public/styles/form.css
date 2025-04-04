@@ -1,12 +1,8 @@
 .main-content {
-  position: relative;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  transform: translateY(-150px);
-  /* позициониране на notification */
+  width: 100%;
+  max-width: none;
+  padding-top: 165px;
+  box-sizing: border-box;
 }
 
 .login-form {
@@ -19,8 +15,11 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  max-width: fit-content;
-  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .login-form h1 {
@@ -50,9 +49,9 @@
 }
 
 .form-field input {
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
+  width: 100%; /* Удължаваме полетата до 100% ширина */
+  padding: 15px; /* Повече място за текст */
+  font-size: 16px; /* По-голям шрифт */
   border: 3px solid #FFD700;
   border-radius: 6px;
   text-align: center;
@@ -79,8 +78,37 @@
   transition: background-color 0.2s ease-in-out;
   align-self: center;
   height: fit-content;
+  width: auto; /* Намаляваме ширината на бутона */
 }
 
 .submit-button:hover {
   background-color: #45a049;
+}
+
+@media (max-width: 600px) {
+  .login-form {
+    width: calc(100% - 20px);
+    max-width: none;
+    padding: 20px;
+    margin: 0 10px;
+  }
+
+  .form-layout {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .form-field {
+    max-width: 100%;
+  }
+
+  .form-field input {
+    width: 100%; /* Удължаваме полетата до 100% за мобилни */
+    padding: 15px; /* Повече място за текст */
+    font-size: 16px; /* По-голям шрифт */
+  }
+
+  .submit-button {
+    width: auto; /* Бутонът ще е с подходяща ширина */
+  }
 }

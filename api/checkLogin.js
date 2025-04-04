@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+
 export default async function (req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -5,8 +7,9 @@ export default async function (req, res) {
 
   const { name, email } = req.body;
 
+  // Проверка за празни полета
   if (!name || !email) {
-    return res.status(400).json({ error: 'Моля, попълнете и двете полета' });
+    return res.status(200).json({ success: false, error: 'Моля, попълнете и двете полета' });
   }
 
   const sheetId = process.env.SHEET_ID;
@@ -19,16 +22,18 @@ export default async function (req, res) {
     const data = await response.json();
     const rows = data.values || [];
 
-    const inputName = name.trim().toLowerCase();
-    const inputEmail = email.trim().toLowerCase();
+    const inputName = name?.trim().toLowerCase() || '';
+    const inputEmail = email?.trim().toLowerCase() || '';
     const match = rows.find(row => row[0]?.trim().toLowerCase() === inputName);
 
-    if (!match || match[1]?.trim().toLowerCase() !== inputEmail) {
-      return res.status(400).json({ error: 'Грешни данни. Моля, опитайте отново!' });
+    if (match && match[1]?.trim().toLowerCase() === inputEmail) {
+      return res.status(200).json({ success: true });
+    } else {
+      return res.status(200).json({ success: false, error: 'Грешни данни. Моля, опитайте отново!' });
     }
 
-    return res.status(200).json({ message: 'Вписването е успешно!' });
-  } catch {
+  } catch (err) {
+    console.error('Login error:', err);
     return res.status(500).json({ error: 'Вътрешна грешка' });
   }
 }
