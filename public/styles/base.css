@@ -2,7 +2,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 body {
@@ -12,4 +12,11 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+}
+
+/* На мобилни устройства позволяваме скрол, ако е необходимо */
+@media (max-width: 600px) {
+  html, body {
+    overflow: auto;
+  }
 }

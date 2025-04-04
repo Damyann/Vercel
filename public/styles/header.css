@@ -14,3 +14,13 @@
   max-width: 200px;
   height: auto;
 }
+
+/* Медиa заявки за мобилни устройства */
+@media (max-width: 600px) {
+  .header-bar {
+    padding: 10px 0;
+  }
+  .logo {
+    max-width: 150px;
+  }
+}
