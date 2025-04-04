@@ -19,13 +19,19 @@ export default async function (req, res) {
       return res.status(400).json({ error: 'Invalid timer data' });
     }
 
-    // Разделяме датите и ги преобразуваме в Софийска часова зона (Europe/Sofia)
+    // Разделяме датите и ги преобразуваме в Софийска часова зона
     const [m, d, y] = values[0].split('/');
     const [d2, m2, y2] = values[1].split('/');
 
-    const start = DateTime.fromObject({ year: y, month: m, day: d }).setZone('Europe/Sofia').toJSDate();
-    const end = DateTime.fromObject({ year: y2, month: m2, day: d2 }).setZone('Europe/Sofia').toJSDate();
-    const now = new Date();
+    const start = DateTime.fromObject({ year: y, month: m, day: d })
+      .setZone('Europe/Sofia', { keepLocalTime: true })
+      .toJSDate();
+
+    const end = DateTime.fromObject({ year: y2, month: m2, day: d2 })
+      .setZone('Europe/Sofia', { keepLocalTime: true })
+      .toJSDate();
+
+    const now = new Date(); // Местно време на сървъра (UTC+2/3)
 
     if (isNaN(start) || isNaN(end)) {
       return res.status(400).json({ error: 'Invalid date format' });
@@ -43,7 +49,8 @@ export default async function (req, res) {
       remaining: end - now
     });
 
-  } catch {
+  } catch (error) {
+    console.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
