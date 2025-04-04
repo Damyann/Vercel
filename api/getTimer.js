@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+
 export default async function (req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -20,20 +22,15 @@ export default async function (req, res) {
     const [m, d, y] = values[0].split('/');
     const [d2, m2, y2] = values[1].split('/');
 
-    const start = new Date(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
-    const end = new Date(`${y2}-${m2.padStart(2, '0')}-${d2.padStart(2, '0')}`);
+    const start = DateTime.fromObject({ year: y, month: m, day: d }).setZone('Europe/Sofia').toJSDate();
+    const end = DateTime.fromObject({ year: y2, month: m2, day: d2 }).setZone('Europe/Sofia').toJSDate();
     const now = new Date();
-
-    const nowUTC = new Date(
-      now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
-      now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()
-    );
 
     if (isNaN(start) || isNaN(end)) {
       return res.status(400).json({ error: 'Invalid date format' });
     }
 
-    if (nowUTC < start || nowUTC > end) {
+    if (now < start || now > end) {
       return res.status(200).json({
         status: 'closed',
         message: 'Заявките са затворени'
@@ -42,7 +39,7 @@ export default async function (req, res) {
 
     return res.status(200).json({
       status: 'open',
-      remaining: end - nowUTC
+      remaining: end - now
     });
 
   } catch {

@@ -49,5 +49,5 @@ window.closedState = false;
     window.closedState = true;
     timerEl.innerHTML = 'Грешка при таймера';
     timerEl.classList.add('closed');
-  }
+    }
 })();

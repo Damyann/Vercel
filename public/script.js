@@ -2,9 +2,10 @@ const form = document.getElementById('loginForm');
 const notification = document.getElementById('notification');
 
 form.addEventListener('submit', async (e) => {
-  if (window.closedState) {
-    e.preventDefault();
+  e.preventDefault();  // Прекъсваме стандартното поведение на формата
 
+  if (window.closedState) {
+    // Ако заявките са затворени
     const timer = document.getElementById('countdown-timer');
     timer.classList.add('flash');
     setTimeout(() => timer.classList.remove('flash'), 800);
@@ -13,20 +14,22 @@ form.addEventListener('submit', async (e) => {
     notification.classList.add('show');
 
     setTimeout(() => notification.classList.remove('show'), 3000);
-    return;
+    return;  // Спираме изпращането на формата
   }
 
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
 
+  // Проверяваме дали има попълнени полета
   if (!name || !email) {
     notification.textContent = 'Моля, попълнете и двете полета';
     notification.classList.add('show');
     setTimeout(() => notification.classList.remove('show'), 3000);
-    return;
+    return;  // Спираме изпращането на формата
   }
 
   try {
+    // Изпращаме заявка за влизане
     const response = await fetch('/api/checkLogin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
