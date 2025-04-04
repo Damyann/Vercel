@@ -22,17 +22,17 @@ export default async function (req, res) {
     function parseDate(str) {
       if (str.includes('/')) {
         const [m, d, y] = str.split('/').map(Number);
-        return DateTime.fromObject({ year: y, month: m, day: d }).plus({ hours: 2 }).toJSDate();  // Добавяме 2 часа към датата
+        return DateTime.fromObject({ year: y, month: m, day: d }).setZone('Europe/Sofia').toJSDate();  // Софийско време
       } else if (str.includes('.')) {
         const [d, m, y] = str.split('.').map(Number);
-        return DateTime.fromObject({ year: y, month: m, day: d }).plus({ hours: 2 }).toJSDate();  // Добавяме 2 часа към датата
+        return DateTime.fromObject({ year: y, month: m, day: d }).setZone('Europe/Sofia').toJSDate();  // Софийско време
       }
       return null;
     }
 
     const start = parseDate(values[0]);
     const end = parseDate(values[1]);
-    const now = DateTime.now().plus({ hours: 2 }).toJSDate();  // Използваме Софийско време (UTC+2)
+    const now = DateTime.now().setZone('Europe/Sofia').toJSDate();  // Софийско време
 
     if (!start || !end || isNaN(start) || isNaN(end)) {
       return res.status(400).json({ error: 'Invalid date format' });
