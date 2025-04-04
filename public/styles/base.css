@@ -1,22 +1,12 @@
 html, body {
-  height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  font-size: 16px; /* базов размер, който може да се мащабира */
+  overflow-x: hidden;
 }
 
 body {
   font-family: Arial, sans-serif;
-  background-image: url('https://trud.bg/storage/1694785/conversions/casino-sites_6315543243798228663_original-thumb-958x539.webp');
+  background: url('https://trud.bg/storage/1694785/conversions/casino-sites_6315543243798228663_original-thumb-958x539.webp') no-repeat center center fixed;
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-/* На мобилни устройства позволяваме скрол, ако е необходимо */
-@media (max-width: 600px) {
-  html, body {
-    overflow: auto;
-  }
 }

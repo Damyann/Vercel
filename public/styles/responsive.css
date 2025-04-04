@@ -1,0 +1,100 @@
+/* responsive.css – Enhanced fluid responsive design for mobile devices */
+
+:root {
+    /* Определяне на базови стойности за хедъра:
+       минимална височина: 80px, fluid: 10vh, максимална: 120px */
+    --min-header-height: 80px;
+    --fluid-header-height: 10vh;
+    --max-header-height: 120px;
+    --header-height: clamp(var(--min-header-height), var(--fluid-header-height), var(--max-header-height));
+  
+    /* Fluid разстояние под хедъра преди стартиране на основното съдържание (формата) */
+    --form-gap: clamp(20px, 5vw, 50px);
+  }
+  
+  /* Fluid типография за цялата страница */
+  body {
+    font-size: clamp(0.875rem, 1vw, 1rem);
+    line-height: 1.5;
+  }
+  
+  /* Мобилни стилове (до 600px) */
+  @media (max-width: 600px) {
+  
+    /* Хедър: Плавно задаване на височината и центриране на съдържанието */
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 0; /* премахваме desktop падинг */
+      height: var(--header-height);
+      transition: height 0.3s ease;
+    }
+  
+    /* Логото: Fluid мащабиране спрямо динамичната височина на хедъра */
+    .logo {
+      max-height: clamp(40px, 5vh, 80px);
+      width: auto;
+      margin: 0 auto;
+      transition: max-height 0.3s ease;
+    }
+  
+    /* Таймер: Центриране вертикално в хедъра и по-компактни размери */
+    #countdown-timer {
+      top: calc(var(--header-height) / 2);
+      right: 10px;
+      transform: translateY(-50%);
+      padding: clamp(8px, 1vw, 10px) clamp(12px, 1.8vw, 14px);
+      font-size: clamp(12px, 1.8vw, 14px);
+      transition: all 0.3s ease;
+    }
+    #countdown-timer .value {
+      font-size: clamp(14px, 1.8vw, 16px);
+    }
+  
+    /* Основно съдържание: Формата започва под хедъра, но с намалено разстояние (по-нагоре) */
+    .main-content {
+      transform: none;
+      margin-top: calc(var(--header-height) + (var(--form-gap) - 30px));
+      /* По-ниско gap: формата започва с по-малко разстояние под хедъра */
+      height: auto;
+      display: block;
+      padding: 20px;
+      transition: margin-top 0.3s ease;
+    }
+  
+    /* Формата: Центрирана с 90% ширина, с плавни преходи */
+    .login-form {
+      width: 90%;
+      box-sizing: border-box;
+      margin: 0 auto;
+      padding: 20px;
+      transition: padding 0.3s ease;
+    }
+  
+    /* Подредба на полетата във формата */
+    .form-layout {
+      flex-direction: column;
+      gap: 15px;
+    }
+    .form-group {
+      gap: 15px;
+    }
+    .form-field {
+      max-width: 100%;
+    }
+    .submit-button {
+      width: 100%;
+    }
+  
+    /* Notification: Винаги точно 15px под формата */
+    .notification {
+      margin-top: 15px;
+      font-size: clamp(16px, 2vw, 18px);
+      max-width: 90%;
+      padding: clamp(10px, 1vw, 15px) clamp(15px, 2vw, 20px);
+      transition: all 0.3s ease;
+    }
+  }
+  

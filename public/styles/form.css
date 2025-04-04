@@ -6,7 +6,7 @@
   align-items: center;
   flex-direction: column;
   transform: translateY(-150px);
-  position: relative; /* за позициониране на notification */
+  /* позициониране на notification */
 }
 
 .login-form {
@@ -46,7 +46,7 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  max-width: 210px; /* увеличаваме ширината с +10px */
+  max-width: 210px;
 }
 
 .form-field input {
@@ -83,30 +83,4 @@
 
 .submit-button:hover {
   background-color: #45a049;
-}
-
-/* Медиa заявки за мобилни устройства */
-@media (max-width: 600px) {
-  .main-content {
-    transform: translateY(0);
-    padding: 20px;
-  }
-  .login-form {
-    padding: 20px;
-    width: 90%;
-    box-sizing: border-box;
-  }
-  .form-layout {
-    flex-direction: column;
-    gap: 15px;
-  }
-  .form-group {
-    gap: 15px;
-  }
-  .form-field {
-    max-width: 100%;
-  }
-  .submit-button {
-    width: 100%;
-  }
 }
