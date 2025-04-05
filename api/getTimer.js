@@ -22,10 +22,10 @@ export default async function (req, res) {
     function parseDate(str) {
       if (str.includes('/')) {
         const [m, d, y] = str.split('/').map(Number);
-        return DateTime.fromObject({ year: y, month: m, day: d }).setZone('Europe/Sofia').toJSDate();  // Софийско време
+        return DateTime.fromObject({ year: y, month: m, day: d }).setZone('Europe/Sofia').toJSDate();
       } else if (str.includes('.')) {
         const [d, m, y] = str.split('.').map(Number);
-        return DateTime.fromObject({ year: y, month: m, day: d }).setZone('Europe/Sofia').toJSDate();  // Софийско време
+        return DateTime.fromObject({ year: y, month: m, day: d }).setZone('Europe/Sofia').toJSDate();
       }
       return null;
     }
