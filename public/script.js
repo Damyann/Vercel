@@ -44,7 +44,16 @@ form.addEventListener('submit', async (e) => {
         // Проверяваме, ако вече има рендериран календар, не добавяме нов
         const existingCalendarCheck = document.getElementById('calendar');
         if (!existingCalendarCheck) {
-          renderCalendar(calendarData.year, calendarData.month, name);
+          renderCalendar(
+            calendarData.year,
+            calendarData.month,
+            name,
+            calendarData.monthName,
+            calendarData.iconUrl,
+            calendarData.options 
+          );
+          
+          
         }
       } else if (calendarData.error) {
         showNotification(calendarData.error);

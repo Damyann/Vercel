@@ -1,85 +1,144 @@
 #calendar {
-    margin: 0 auto;
+  margin: 0 auto;
+  padding: 10px;
+  width: 100%;
+  max-width: calc(100% - 10px);
+  box-sizing: border-box;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-greeting {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.calendar-month-banner {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 2px solid #FFD700;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: fit-content;
+  margin: 0 auto 20px;
+}
+
+.calendar-month-pin {
+  position: absolute;
+  top: -30px; 
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  z-index: 2;
+}
+
+.calendar-month-name {
+  display: inline-block;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.calendar-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  border: 2px solid red;
+  border-radius: 6px;
+  padding: 6px 4px;
+  font-weight: bold;
+  font-size: 14px;
+  height: 70px;
+  box-sizing: border-box;
+}
+
+.calendar-day-number {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.calendar-select {
+  width: 100%;
+  padding: 2px 4px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.calendar-cell:hover {
+  transform: scale(1.03);
+  cursor: pointer;
+}
+
+.calendar-cell.empty {
+  background: transparent;
+  border: none;
+}
+
+.calendar-cell.weekend {
+  background-color: #fff3cd;
+  border-color: #ffcc00;
+  color: #333;
+}
+
+/* 🔁 Мобилна версия */
+@media (max-width: 600px) {
+  #calendar {
+    margin: 0 5px;
     padding: 10px;
-    width: 100%;
-    max-width: calc(100% - 10px);
-    box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.95);
-    border: 2px solid #FFD700;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: auto;
+    max-width: none;
+    transform: translateY(-10px);
   }
-  
+
   .calendar-greeting {
-    font-size: 20px;
-    font-weight: bold;
-    color: #333;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-  }
-  
-  .calendar-cell {
-    background-color: white;
-    border: 2px solid #FFD700;
-    border-radius: 6px;
-    text-align: center;
-    padding: 14px;
-    font-weight: bold;
     font-size: 16px;
-    transition: transform 0.2s ease;
+    margin-bottom: 25px;
+    text-align: center;
   }
-  
-  .calendar-cell:hover {
-    transform: scale(1.05);
-    cursor: pointer;
+
+  .calendar-month-banner {
+    font-size: 18px;
+    padding: 8px 16px;
   }
-  
-  .calendar-cell.empty {
-    background: transparent;
-    border: none;
+
+  .calendar-month-pin {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    width: 28px;
+    height: 28px;
+    z-index: 2;
   }
-  
-  .calendar-cell.weekend {
-    background-color: #fff3cd;
-    border-color: #ffcc00;
-    color: #333;
+
+  .calendar-grid {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
   }
-  
-  @media (max-width: 600px) {
-    #calendar {
-      margin: 0 5px;
-      padding: 10px;
-      width: auto;
-      max-width: none;
-      transform: translateY(-10px); /* Вдигаме календара с 30px нагоре */
-    }
-  
-    .calendar-greeting {
-      font-size: 16px;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-  
-    .calendar-grid {
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-    }
-  
-    .calendar-cell {
-      padding: 10px;
-      font-size: 14px;
-      border-radius: 5px;
-    }
-  
-    .calendar-cell.weekend {
-      background-color: #fff3cd;
-      border-color: #ffcc00;
-    }
+
+  .calendar-cell {
+    height: 60px;
+    padding: 4px;
+    font-size: 13px;
   }
-  
+
+  .calendar-select {
+    font-size: 12px;
+    padding: 1px 2px;
+  }
+}

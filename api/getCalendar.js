@@ -22,28 +22,49 @@ export default async function (req, res) {
 
   const sheetId = process.env.SHEET_ID;
   const apiKey = process.env.API_KEY;
-  const range = 'Месец!A2:B2';
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
 
   try {
-    const response = await fetch(url);
-    const data = await response.json();
+    // 📅 Вземаме година и месец от A2:B2
+    const dateRange = 'Месец!A2:B2';
+    const dateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(dateRange)}?key=${apiKey}`;
+    const dateRes = await fetch(dateUrl);
+    const dateData = await dateRes.json();
+    const values = dateData.values?.[0];
 
-    const values = data.values?.[0];
     if (!values || values.length < 2) {
       return res.status(400).json({ error: 'Missing calendar data' });
     }
 
     const year = parseInt(values[0]);
-    const monthName = values[1].trim().toLowerCase();
-    const month = monthMap[monthName];
+    const monthNameRaw = values[1].trim().toLowerCase();
+    const month = monthMap[monthNameRaw];
+    const monthName = values[1].trim();
+    const iconUrl = '/styles/Pin.png';
 
     if (isNaN(year) || !month) {
       return res.status(400).json({ error: 'Invalid calendar data' });
     }
 
-    // Връщаме календарната информация за година и месец
-    return res.status(200).json({ year, month });
+    // ✅ Вземаме Q2:Q11 (опции) и R2:R11 (допуснати/не)
+    const optionsRange = 'Месец!Q2:R11';
+    const optionsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(optionsRange)}?key=${apiKey}`;
+    const optionsRes = await fetch(optionsUrl);
+    const optionsData = await optionsRes.json();
+    const rows = optionsData.values || [];
+
+    // 🔐 Филтрираме само позволените
+    const options = rows
+      .filter(row => row[1]?.toLowerCase() === 'true') // R колоната
+      .map(row => row[0]) // Q колоната
+
+    return res.status(200).json({
+      year,
+      month,
+      monthName,
+      iconUrl,
+      options
+    });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal server error' });
