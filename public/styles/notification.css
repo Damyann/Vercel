@@ -27,3 +27,9 @@
 .notification.info {
   background-color: #2196F3;
 }
+
+@media (max-width: 600px) {
+  .notification {
+    top: calc(50% + 40px); /* сваля я леко надолу на мобилни */
+  }
+}

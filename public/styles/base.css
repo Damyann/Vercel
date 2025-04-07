@@ -7,6 +7,11 @@ html, body {
 
 body {
   font-family: Arial, sans-serif;
-  background: url('https://trud.bg/storage/1694785/conversions/casino-sites_6315543243798228663_original-thumb-958x539.webp') no-repeat center center fixed;
+  background-color: #222; 
+  background-image: url('/styles/Fon.webp');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
   background-size: cover;
 }
+
