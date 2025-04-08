@@ -1,8 +1,8 @@
-/* === Десктоп стилове (оригинал) === */
+/* === Десктоп стилове === */
 #calendar {
   width: 750px;    
   height: 725px;   
-  margin: 40px auto;
+  margin: 40px auto 0;
   padding: 20px;
   background: linear-gradient(#004746, #111111);
   border: 4px solid #00ffff;
@@ -12,7 +12,6 @@
   box-sizing: border-box;
 }
 
-/* Надписите, гридът, клетките и т.н. – идентични */
 .calendar-greeting {
   font-size: 16px;
   font-weight: bold;
@@ -50,12 +49,13 @@
 .calendar-cell {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start; /* 🟡 Вдига съдържанието нагоре */
   align-items: center;
+  padding-top: 10px; /* 🟡 Добавя разстояние отгоре, за да не е залепено */
   background-color: #111;
   border: 2px solid #00ffff;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 20px;
   color: #00ffff;
   box-shadow: 0 0 10px #00ffff33;
   transition: 0.3s ease;
@@ -67,12 +67,13 @@
 }
 
 .calendar-day-number {
-  font-size: 14px;
+  font-size: 20px;
   font-weight: bold;
+  margin-bottom: 8px; /* 🟡 Създава разстояние между цифрата и падащото меню */
 }
 
 .calendar-select {
-  width: 80%;
+  width: 95%;
   padding: 4px;
   font-size: 13px;
   text-align: center;
@@ -88,16 +89,62 @@
   color: #00ffff;
 }
 
+/* === Панел под календара === */
+#summary-panel {
+  width: 750px;
+  margin: 5px auto 40px; /* само 5px разстояние */
+  padding: 25px;
+  background: linear-gradient(#004746, #111111);
+  border: 4px solid #00ffff;
+  border-radius: 30px;
+  box-shadow: 0 0 20px #00ffff;
+  color: #00ffff;
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  row-gap: 20px;
+  column-gap: 10px;
+  box-sizing: border-box;
+}
 
+#summary-panel button {
+  background-color: #00ffff;
+  color: #111;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #00ffff;
+  transition: 0.3s;
+}
+
+#summary-panel button:hover {
+  background-color: #00e0e0;
+  box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+}
+
+/* === Мобилни устройства === */
 @media (max-width: 600px) {
   #calendar {
-    position: relative;              
-    left: 50%;                       
-    transform: translateX(-50%) scale(0.52);
-    transform-origin: top center;
+    zoom: 0.55; /* вместо transform */
     width: 720px;
-    height: 725px;
-    margin: 10px 0;   
-    overflow: visible; 
+    height: auto;
+    margin: 10px auto 0;
+  }
+
+  #summary-panel {
+    zoom: 0.55; /* отговаря на скалата на календара */
+    width: 720px;
+    margin: 5px auto 10px !important; /* точно 5px под календара */
+    font-size: 28px; /* x2 от desktop */
+  }
+
+  #summary-panel button {
+    font-size: 23px;
+    padding: 10px 28px;
   }
 }

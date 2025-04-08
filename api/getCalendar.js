@@ -24,7 +24,7 @@ export default async function (req, res) {
   const apiKey = process.env.API_KEY;
 
   try {
-    // 📅 Вземаме година и месец от A2:B2
+    // 📅 Вземаме година и месец
     const dateRange = 'Месец!A2:B2';
     const dateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(dateRange)}?key=${apiKey}`;
     const dateRes = await fetch(dateUrl);
@@ -39,30 +39,44 @@ export default async function (req, res) {
     const monthNameRaw = values[1].trim().toLowerCase();
     const month = monthMap[monthNameRaw];
     const monthName = values[1].trim();
-    const iconUrl = '/images/Pin.png'; 
+    const iconUrl = '/images/Pin.png';
 
     if (isNaN(year) || !month) {
       return res.status(400).json({ error: 'Invalid calendar data' });
     }
 
-    // ✅ Вземаме Q2:Q11 (опции) и R2:R11 (допуснати/не)
+    // 🟦 Опции (Q2:R11)
     const optionsRange = 'Месец!Q2:R11';
     const optionsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(optionsRange)}?key=${apiKey}`;
     const optionsRes = await fetch(optionsUrl);
     const optionsData = await optionsRes.json();
     const rows = optionsData.values || [];
 
-    // 🔐 Филтрираме само позволените
     const options = rows
-      .filter(row => row[1]?.toLowerCase() === 'true') // R колоната
-      .map(row => row[0]) // Q колоната
+      .filter(row => row[1]?.toLowerCase() === 'true')
+      .map(row => row[0]);
+
+    // 🟨 Тежести (Q2:S11)
+    const weightsRange = 'Месец!Q2:S11';
+    const weightsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(weightsRange)}?key=${apiKey}`;
+    const weightsRes = await fetch(weightsUrl);
+    const weightsData = await weightsRes.json();
+    const weightRows = weightsData.values || [];
+
+    const weights = {};
+    weightRows.forEach(row => {
+      const label = row[0];
+      const weight = parseFloat(row[2]) || 1;
+      if (label) weights[label] = weight;
+    });
 
     return res.status(200).json({
       year,
       month,
       monthName,
       iconUrl,
-      options
+      options,
+      weights
     });
 
   } catch (error) {

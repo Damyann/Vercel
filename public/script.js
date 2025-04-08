@@ -10,7 +10,6 @@ form.addEventListener('submit', async (e) => {
     const timer = document.getElementById('countdown-timer');
     timer.classList.add('flash');
     setTimeout(() => timer.classList.remove('flash'), 800);
-
     showNotification('Не се опитвай да изпращаш заявка извън указаното време.');
     return;
   }
@@ -30,31 +29,22 @@ form.addEventListener('submit', async (e) => {
     if (response.ok && result.success) {
       form.style.display = 'none';
 
-      // Премахваме стария календар, ако съществува
       const existingCalendar = document.getElementById('calendar');
-      if (existingCalendar) {
-        existingCalendar.remove();
-      }
+      if (existingCalendar) existingCalendar.remove();
 
-      // Получаваме календара от API-то
       const res = await fetch('/api/getCalendar');
       const calendarData = await res.json();
 
       if (res.ok) {
-        // Проверяваме, ако вече има рендериран календар, не добавяме нов
-        const existingCalendarCheck = document.getElementById('calendar');
-        if (!existingCalendarCheck) {
-          renderCalendar(
-            calendarData.year,
-            calendarData.month,
-            name,
-            calendarData.monthName,
-            calendarData.iconUrl,
-            calendarData.options 
-          );
-          
-          
-        }
+        renderCalendar(
+          calendarData.year,
+          calendarData.month,
+          name,
+          calendarData.monthName,
+          calendarData.iconUrl,
+          calendarData.options,
+          calendarData.weights
+        );
       } else if (calendarData.error) {
         showNotification(calendarData.error);
       }
