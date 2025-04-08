@@ -92,15 +92,13 @@
 /* === Мобилен (до ~600px) – Умаляване и центриране === */
 @media (max-width: 600px) {
   #calendar {
-    position: relative;               /* Нужно за left: 50% */
-    left: 50%;                       /* Базираме се в средата на екрана */
-    transform: translateX(-50%) scale(0.55);
+    position: relative;              
+    left: 50%;                       
+    transform: translateX(-50%) scale(0.50);
     transform-origin: top center;
-    
-    width: 750px;
+    width: 720px;
     height: 725px;
-    
-    margin: 20px 0;   /* Върху мобилен нека има малък вертикален margin */
-    overflow: visible; /* Да не реже съдържанието */
+    margin: 20px 0;   
+    overflow: visible; 
   }
 }
