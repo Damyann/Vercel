@@ -2,7 +2,7 @@
 <html lang="bg">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=750, initial-scale=0.8">
   <title>Вход</title>
 
   <link rel="stylesheet" href="/styles/base.css">
@@ -11,13 +11,15 @@
   <link rel="stylesheet" href="/styles/notification.css">
   <link rel="stylesheet" href="/styles/timer.css">
   <link rel="stylesheet" href="/styles/calendar.css">
-  <link rel="preload" as="image" href="/styles/Fon.webp">
-  <link rel="preload" as="image" href="/styles/Pin.png">
 </head>
 
 <body>
   <header class="header-bar">
-    <img src="https://win-models.com/build/images/logo.2f696657.svg" alt="Logo" class="logo">
+    <img src="/images/logo.svg" alt="Logo" class="logo">
+    <div id="countdown-timer">
+      <div>Оставащо време:</div>
+      <div class="value" id="timer-value">--:--</div>
+    </div>
   </header>
 
   <main class="main-content">
@@ -39,11 +41,6 @@
     <div id="calendar" style="display: none;"></div>
 
     <div id="notification" class="notification"></div>
-
-    <div id="countdown-timer" style="display: none;">
-      <div>Оставащо време:</div>
-      <div class="value" id="timer-value">--:--</div>
-    </div>
   </main>
 
   <script type="module" src="/script.js"></script>

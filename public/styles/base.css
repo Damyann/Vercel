@@ -5,7 +5,7 @@ html, body {
   overflow-x: hidden;
   font-family: Arial, sans-serif;
   background-color: #222;
-  background-image: url('/styles/Fon.webp');
+  background-image: url('/images/Fon.webp'); 
   background-repeat: no-repeat;
   background-position: center center;
   background-attachment: fixed;

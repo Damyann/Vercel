@@ -39,7 +39,7 @@ export default async function (req, res) {
     const monthNameRaw = values[1].trim().toLowerCase();
     const month = monthMap[monthNameRaw];
     const monthName = values[1].trim();
-    const iconUrl = '/styles/Pin.png';
+    const iconUrl = '/images/Pin.png'; 
 
     if (isNaN(year) || !month) {
       return res.status(400).json({ error: 'Invalid calendar data' });

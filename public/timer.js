@@ -1,8 +1,6 @@
 (() => {
-  const timerEl = document.createElement('div');
-  timerEl.id = 'countdown-timer';
-  timerEl.innerHTML = '<span class="loading">Зареждане...</span>';
-  document.body.appendChild(timerEl);
+  const timerEl = document.getElementById('countdown-timer');
+  const valueSpan = timerEl.querySelector('.value');
 
   function formatRemaining(ms) {
     const s = Math.floor(ms / 1000);
@@ -26,8 +24,7 @@
       }
 
       let remaining = data.remaining;
-      timerEl.innerHTML = 'Оставащо време:<br><span class="value">--д --ч --м --с</span>';
-      const valueSpan = timerEl.querySelector('.value');
+      valueSpan.textContent = '--д --ч --м --с';
 
       const update = () => {
         if (remaining <= 0) {
