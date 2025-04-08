@@ -92,7 +92,7 @@
   #calendar {
     position: relative;
     left: 50%;
-    transform: translateX(-50%) scale(0.60);
+    transform: translateX(-50%) scale(0.55);
     transform-origin: top center;
     width: 750px;   /* Запазваме оригиналната фиксирана ширина */
     height: 725px;  /* Запазваме оригиналната фиксирана височина */
