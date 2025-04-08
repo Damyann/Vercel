@@ -91,9 +91,9 @@
   #calendar {
     position: relative;
     left: 50%;
-    transform: translateX(-50%) scale(0.63);
+    transform: translateX(-50%) scale(0.55);
     transform-origin: top center;
-    width: 650          px;   /* Запазваме оригиналната фиксирана ширина */
+    width: 645px;   /* Запазваме оригиналната фиксирана ширина */
     height: 700px;  /* Запазваме оригиналната фиксирана височина */
     margin: 10px 0;
   }
