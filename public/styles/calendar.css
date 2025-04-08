@@ -1,7 +1,8 @@
+/* === Десктоп стилове (оригинал) === */
 #calendar {
-  width: 750px;
-  height: 725px;
-  margin: 40px auto;
+  width: 750px;              /* Фиксирана ширина за десктоп */
+  height: 725px;             /* Фиксирана височина за десктоп */
+  margin: 40px auto;         /* Центриране по хоризонтала */
   padding: 20px;
   background: linear-gradient(#004746, #111111);
   border: 4px solid #00ffff;
@@ -11,7 +12,6 @@
   box-sizing: border-box;
 }
 
-/* Приветствие */
 .calendar-greeting {
   font-size: 16px;
   font-weight: bold;
@@ -19,7 +19,6 @@
   margin-bottom: 20px;
 }
 
-/* Месец и иконка */
 .calendar-month-banner {
   position: relative;
   background-color: transparent;
@@ -38,17 +37,15 @@
   transform: translateX(-50%);
 }
 
-/* Грид с клетки */
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 95px); /* 7 дни по 95px */
-  grid-auto-rows: 105px;                 /* всяка клетка висока 105px */
+  grid-template-columns: repeat(7, 95px);   /* 7 колони с ширина 95px */
+  grid-auto-rows: 105px;                     /* Всяка клетка с височина 105px */
   gap: 6px;
   justify-content: center;
   margin-top: 20px;
 }
 
-/* Клетка за ден */
 .calendar-cell {
   display: flex;
   flex-direction: column;
@@ -68,13 +65,11 @@
   transform: scale(1.05);
 }
 
-/* Денят като число */
 .calendar-day-number {
   font-size: 14px;
   font-weight: bold;
 }
 
-/* Падащо меню */
 .calendar-select {
   width: 80%;
   padding: 4px;
@@ -87,8 +82,20 @@
   box-shadow: 0 0 8px #00ffff44;
 }
 
-/* Уикенди */
 .calendar-cell.weekend {
   background-color: #003333;
   color: #00ffff;
+}
+
+/* === Мобилен изглед: мащабиране на календара до 65% и центриране === */
+@media (max-width: 600px) {
+  #calendar {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%) scale(0.60);
+    transform-origin: top center;
+    width: 750px;   /* Запазваме оригиналната фиксирана ширина */
+    height: 725px;  /* Запазваме оригиналната фиксирана височина */
+    margin: 40px 0;
+  }
 }
