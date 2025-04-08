@@ -89,16 +89,15 @@
 }
 
 
-/* === Мобилен (до ~600px) – Умаляване и центриране === */
 @media (max-width: 600px) {
   #calendar {
     position: relative;              
     left: 50%;                       
-    transform: translateX(-50%) scale(0.50);
+    transform: translateX(-50%) scale(0.52);
     transform-origin: top center;
     width: 720px;
     height: 725px;
-    margin: 20px 0;   
+    margin: 10px 0;   
     overflow: visible; 
   }
 }
