@@ -1,125 +1,51 @@
-.main-content {
-  width: 100%;
-  max-width: none;
-  padding-top: 165px;
-  box-sizing: border-box;
-}
-
 .login-form {
-  background-color: rgba(255, 255, 255, 0.95);
-  padding: 40px;
-  border: 3px solid #FFD700;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-  max-width: 400px;
-  box-sizing: border-box;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 360px;
+  margin: 60px auto 20px auto;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .login-form h1 {
-  margin: 0 0 10px 0;
+  font-size: 18px;
   text-align: center;
-  font-size: 1.2rem;
-  color: #000;
+  margin-bottom: 12px;
+  font-weight: normal;
 }
 
 .form-layout {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 20px;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 25px;
-}
-
-.form-field {
-  display: flex;
-  flex-direction: column;
-  max-width: 210px;
+  gap: 10px;
 }
 
 .form-field input {
-  width: 100%; /* Удължаваме полетата до 100% ширина */
-  padding: 15px; /* Повече място за текст */
-  font-size: 16px; /* По-голям шрифт */
-  border: 3px solid #FFD700;
+  font-size: 14px;
+  padding: 6px 10px;
   border-radius: 6px;
-  text-align: center;
-  box-sizing: border-box;
-  transition: border-color 0.2s ease-in-out, box-shadow 0.2s;
-  background-color: white;
-}
-
-.form-field input:focus {
-  border-color: #FFD700;
-  outline: none;
-  box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+  border: 1px solid #ccc;
+  width: 100%;
+  background-color: #fff;
 }
 
 .submit-button {
-  padding: 12px 20px;
-  background-color: #4CAF50;
-  color: white;
   font-size: 14px;
-  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: #333;
+  color: white;
   border: none;
-  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-  align-self: center;
-  height: fit-content;
-  width: auto; /* Намаляваме ширината на бутона */
+  transition: background 0.2s ease;
 }
 
 .submit-button:hover {
-  background-color: #45a049;
-}
-
-@media (max-width: 600px) {
-  .form-layout {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .form-group {
-    flex: 1;
-    gap: 10px;
-  }
-
-  .form-field input {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .submit-button {
-    padding: 10px 16px;
-    font-size: 14px;
-    height: fit-content;
-    align-self: flex-start;
-    margin-left: auto;
-    margin-top: 30px; /* 🎯 ТУК контролираш вертикалната позиция */
-  }
-
-  .login-form {
-    padding: 20px 15px;
-    gap: 10px;
-  }
-
-  .login-form h1 {
-    font-size: 1rem;
-    margin-bottom: 5px;
-  }
+  background-color: #444;
 }

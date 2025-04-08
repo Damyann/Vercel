@@ -1,19 +1,19 @@
 .notification {
-  position: absolute;
+  position: fixed;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%) translateY(0);
-  top: calc(50%); /* Преместваме нотификацията по-нагоре с 25px */
+  transform: translate(-50%, -50%);
   background-color: #f44336;
   color: white;
   padding: 12px 20px;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 14px;
   text-align: center;
-  max-width: 400px;
+  max-width: 320px;
   opacity: 0;
   transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 2;
+  z-index: 1000;
 }
 
 .notification.show {
@@ -26,10 +26,4 @@
 
 .notification.info {
   background-color: #2196F3;
-}
-
-@media (max-width: 600px) {
-  .notification {
-    top: calc(50% - 10px); /* сваля я леко надолу на мобилни */
-  }
 }

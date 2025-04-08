@@ -1,15 +1,14 @@
 #calendar {
   margin: 0 auto;
-  padding: 0; /* ⬅️ преди беше 10px */
-  width: 100%; /* ⬅️ беше calc(100% - 6px) */
-  max-width: none; /* ⬅️ махаме ограничението */
+  padding: 0;
+  width: 100%;
+  max-width: none;
   box-sizing: border-box;
   background-color: rgba(255, 255, 255, 0.95);
   border: 2px solid #FFD700;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
-
 
 .calendar-greeting {
   font-size: 16px;
@@ -48,10 +47,9 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 3px;
   width: 100%;
-  padding: 0 5px; /* ⬅️ 2px отляво и отдясно */
+  padding: 0 5px;
   box-sizing: border-box;
 }
-
 
 .calendar-cell {
   display: flex;
@@ -68,7 +66,6 @@
   box-sizing: border-box;
   transition: 0.3s;
 }
-
 
 .calendar-day-number {
   font-size: 12px;
@@ -99,26 +96,4 @@
 .calendar-cell.weekend {
   background-color: #73c3aa;
   color: #333;
-}
-
-@media (max-width: 600px) {
-  .calendar-grid {
-    gap: 3px;
-    padding: 0 1px;
-  }
-
-  .calendar-cell {
-    height: 65px;
-    font-size: 11px;
-  }
-
-  .calendar-day-number {
-    font-size: 10px;
-  }
-
-  .calendar-select {
-    font-size: 9px;
-    height: 22px;
-    width: 92%;
-  }
 }
