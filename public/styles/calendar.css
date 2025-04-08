@@ -1,8 +1,7 @@
-/* === Десктоп стилове (оригинал) === */
 #calendar {
-  width: 750px;              /* Фиксирана ширина за десктоп */
-  height: 725px;             /* Фиксирана височина за десктоп */
-  margin: 40px auto;         /* Центриране по хоризонтала */
+  width: 750px;              
+  height: 725px;             
+  margin: 40px auto;         
   padding: 20px;
   background: linear-gradient(#004746, #111111);
   border: 4px solid #00ffff;
@@ -39,7 +38,7 @@
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 95px);   /* 7 колони с ширина 95px */
+  grid-template-columns: repeat(7, 85px);   /* 7 колони с ширина 95px */
   grid-auto-rows: 105px;                     /* Всяка клетка с височина 105px */
   gap: 6px;
   justify-content: center;
@@ -92,10 +91,10 @@
   #calendar {
     position: relative;
     left: 50%;
-    transform: translateX(-50%) scale(0.55);
+    transform: translateX(-50%) scale(0.63);
     transform-origin: top center;
-    width: 750px;   /* Запазваме оригиналната фиксирана ширина */
-    height: 725px;  /* Запазваме оригиналната фиксирана височина */
-    margin: 40px 0;
+    width: 650          px;   /* Запазваме оригиналната фиксирана ширина */
+    height: 700px;  /* Запазваме оригиналната фиксирана височина */
+    margin: 10px 0;
   }
 }
