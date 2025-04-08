@@ -130,14 +130,14 @@
 /* === Мобилни устройства === */
 @media (max-width: 600px) {
   #calendar {
-    zoom: 0.55; /* вместо transform */
+    zoom: 0.54; /* вместо transform */
     width: 720px;
     height: auto;
     margin: 10px auto 0;
   }
 
   #summary-panel {
-    zoom: 0.55; /* отговаря на скалата на календара */
+    zoom: 0.54; /* отговаря на скалата на календара */
     width: 720px;
     margin: 5px auto 10px !important; /* точно 5px под календара */
     font-size: 28px; /* x2 от desktop */
