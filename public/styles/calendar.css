@@ -1,8 +1,8 @@
 #calendar {
   margin: 0 auto;
-  padding: 10px;
-  width: 100%;
-  max-width: calc(100% - 20px); /* Оставяме малко разстояние отстрани */
+  padding: 0; /* ⬅️ преди беше 10px */
+  width: 100%; /* ⬅️ беше calc(100% - 6px) */
+  max-width: none; /* ⬅️ махаме ограничението */
   box-sizing: border-box;
   background-color: rgba(255, 255, 255, 0.95);
   border: 2px solid #FFD700;
@@ -10,12 +10,13 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
+
 .calendar-greeting {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   color: #333;
   text-align: center;
-  margin-bottom: 35px;
+  margin-bottom: 20px;
 }
 
 .calendar-month-banner {
@@ -23,66 +24,70 @@
   background-color: rgba(255, 255, 255, 0.8);
   border: 2px solid #FFD700;
   border-radius: 10px;
-  padding: 10px 20px;
-  font-size: 20px;
+  padding: 6px 12px;
+  font-size: 15px;
   font-weight: bold;
   color: #333;
   text-align: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   width: fit-content;
-  margin: 0 auto 20px;
+  margin: 0 auto 15px;
 }
 
 .calendar-month-pin {
   position: absolute;
-  top: -30px;
+  top: -24px;
   left: 50%;
-  width: 36px;
-  height: 36px;
+  width: 24px;
+  height: 24px;
   z-index: 2;
-}
-
-.calendar-month-name {
-  display: inline-block;
+  transform: translateX(-50%);
 }
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr); /* Всеки ред ще има 7 клетки с еднаква ширина */
-  gap: 6px; /* Разстояние между клетките */
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  width: 100%;
+  padding: 0 5px; /* ⬅️ 2px отляво и отдясно */
+  box-sizing: border-box;
 }
+
 
 .calendar-cell {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   background-color: white;
-  border: 2px solid red;
+  border: 2px solid #800020;
   border-radius: 6px;
-  padding: 6px 4px;
+  padding: 0;
   font-weight: bold;
-  font-size: 14px;
-  height: 70px; /* Височина на клетката */
+  font-size: 13px;
+  height: 70px;
   box-sizing: border-box;
-  width: 80px; /* Ширина на клетките */
+  transition: 0.3s;
 }
 
+
 .calendar-day-number {
-  font-size: 14px;
-  margin-bottom: 4px;
+  font-size: 12px;
+  margin: 2px 0;
 }
 
 .calendar-select {
-  width: 100%;
-  padding: 2px 4px;
-  font-size: 13px;
+  width: 90%;
+  height: 24px;
+  font-size: 12px;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 2px solid #FFD700;
+  background-color: #fffdf0;
+  text-align: center;
 }
 
 .calendar-cell:hover {
-  transform: scale(1.03);
+  background-color: #f6cacb;
+  transform: scale(1.02);
   cursor: pointer;
 }
 
@@ -92,54 +97,28 @@
 }
 
 .calendar-cell.weekend {
-  background-color: #fff3cd;
-  border-color: #ffcc00;
+  background-color: #73c3aa;
   color: #333;
 }
 
-/* 🔁 Мобилна версия */
 @media (max-width: 600px) {
-  #calendar {
-    margin: 0 5px;
-    padding: 10px;
-    width: auto;
-    max-width: none;
-    transform: translateY(-10px);
-  }
-
-  .calendar-greeting {
-    font-size: 16px;
-    margin-bottom: 25px;
-    text-align: center;
-  }
-
-  .calendar-month-banner {
-    font-size: 18px;
-    padding: 8px 16px;
-  }
-
-  .calendar-month-pin {
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    width: 28px;
-    height: 28px;
-    z-index: 2;
-  }
-
   .calendar-grid {
-    grid-template-columns: repeat(7, 1fr); /* Оставяме клетките с ширина 80px */
-    gap: 6px;
+    gap: 3px;
+    padding: 0 1px;
   }
 
   .calendar-cell {
-    height: 60px;
-    padding: 4px;
-    font-size: 13px;
+    height: 65px;
+    font-size: 11px;
+  }
+
+  .calendar-day-number {
+    font-size: 10px;
   }
 
   .calendar-select {
-    font-size: 12px;
-    padding: 1px 2px;
+    font-size: 9px;
+    height: 22px;
+    width: 92%;
   }
 }
