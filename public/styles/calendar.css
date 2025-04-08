@@ -1,49 +1,52 @@
-/* === Десктоп стилове === */
+/* === Мобилен и адаптивен стил (по подразбиране) === */
 #calendar {
-  width: 750px;    
-  height: 725px;   
-  margin: 40px auto 0;
-  padding: 20px;
+  width: 98vw;
+  max-width: 780px;
+  height: auto;
+  margin: 4vh auto 0;
+  padding: 2vh 2vw;
   background: linear-gradient(#004746, #111111);
-  border: 4px solid #00ffff;
-  border-radius: 30px;
-  box-shadow: 0 0 20px #00ffff;
+  border: 0.3vw solid #00ffff;
+  border-radius: 2vw;
+  box-shadow: 0 0 2vw #00ffff;
   text-align: center;
   box-sizing: border-box;
 }
 
 .calendar-greeting {
-  font-size: 16px;
+  font-size: 1.8vw;
   font-weight: bold;
   color: #00ffff;
-  margin-bottom: 20px;
+  margin-bottom: 2vh;
 }
 
 .calendar-month-banner {
   position: relative;
   background-color: transparent;
-  padding: 10px;
+  padding: 1vh 0;
   color: #00ffff;
-  font-size: 18px;
+  font-size: 2vw;
   font-weight: bold;
 }
 
 .calendar-month-pin {
   position: absolute;
-  top: -24px;
+  top: -2.4vh;
   left: 50%;
-  width: 28px;
-  height: 28px;
+  width: 3vw;
+  height: 3vw;
   transform: translateX(-50%);
 }
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 95px); 
-  grid-auto-rows: 120px;  /* ⬅️ Променено от 105px на 120px */
+  grid-template-columns: repeat(7, 1fr); /* ⬅️ равномерни мобилни дни */
+  grid-auto-rows: 11vh;
   gap: 6px;
   justify-content: center;
-  margin-top: 20px;
+  margin: 0 auto;
+  padding: 0 3px;
+  max-width: 100%; /* ⬅️ не излиза извън панела */
 }
 
 .calendar-cell {
@@ -51,13 +54,13 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  gap: 2px; /* ⬅️ Разстояние между числото и дроп менюто */
+  gap: 1vh;
   background-color: #111;
   border: 2px solid #00ffff;
-  border-radius: 20px;
-  font-size: 30px;
+  border-radius: 16px;
+  font-size: 2.5vw;
   color: #00ffff;
-  box-shadow: 0 0 10px #00ffff33;
+  box-shadow: 0 0 1vw #00ffff33;
   transition: 0.3s ease;
 }
 
@@ -67,25 +70,24 @@
 }
 
 .calendar-day-number {
-  font-size: 23px;
+  font-size: 2.5vw;
   font-weight: bold;
-  margin-top: 2px; /* ⬅️ Разстояние от горния бордър */
+  margin-top: 0.5vh;
 }
 
-/* === Премахване на стрелката и стил при фокус === */
 .calendar-select,
 .calendar-select:focus {
-  width: 98%;
-  padding: 6px;
-  font-size: 20px;
+  width: 90%;
+  padding: 0.8vh 0.5vw;
+  font-size: 2.8vw;
   font-weight: bold;
   text-align: center;
   text-align-last: center;
-  border-radius: 20px;
+  border-radius: 16px;
   border: none;
   background-color: #111;
   color: #00ffff;
-  box-shadow: 0 0 8px #00ffff44;
+  box-shadow: 0 0 0.5vw #00ffff44;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -94,7 +96,7 @@
 }
 
 .calendar-select option {
-  font-size: 20px;
+  font-size: 2.8vw;
   text-align: center;
   font-weight: bold;
 }
@@ -104,23 +106,23 @@
   color: #00ffff;
 }
 
-/* === Панел под календара === */
 #summary-panel {
-  width: 750px;
-  margin: 5px auto 40px;
-  padding: 25px;
+  width: 98vw;
+  max-width: 780px;
+  margin: 2vh auto 4vh;
+  padding: 2vh 2vw;
   background: linear-gradient(#004746, #111111);
-  border: 4px solid #00ffff;
-  border-radius: 30px;
-  box-shadow: 0 0 20px #00ffff;
+  border: 0.3vw solid #00ffff;
+  border-radius: 2vw;
+  box-shadow: 0 0 2vw #00ffff;
   color: #00ffff;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 2.5vw;
   text-align: center;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  row-gap: 20px;
-  column-gap: 10px;
+  row-gap: 2vh;
+  column-gap: 1vw;
   box-sizing: border-box;
 }
 
@@ -128,38 +130,62 @@
   background-color: #00ffff;
   color: #111;
   border: none;
-  border-radius: 25px;
-  padding: 10px 20px;
+  border-radius: 2vw;
+  padding: 1.2vh 2vw;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 2.5vw;
   cursor: pointer;
-  box-shadow: 0 0 10px #00ffff;
+  box-shadow: 0 0 1vw #00ffff;
   transition: 0.3s;
 }
 
 #summary-panel button:hover {
   background-color: #00e0e0;
-  box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+  box-shadow: 0 0 2vw #00ffff, 0 0 4vw #00ffff;
 }
 
-/* === Мобилни устройства === */
-@media (max-width: 600px) {
+/* === Десктоп стилове (фиксирани) === */
+@media (min-width: 1025px) {
   #calendar {
-    zoom: 0.53;
-    width: 720px;
-    height: auto;
-    margin: 10px auto 0;
+    width: 742px;
+    margin: 40px auto 0;
+    padding: 20px;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(7, 100px);
+    grid-auto-rows: 100px;
+    gap: 6px;
+    padding: 0 3px;
+  }
+
+  .calendar-cell {
+    font-size: 16px;
+  }
+
+  .calendar-day-number {
+    font-size: 23px;
+    margin-top: 2px;
+  }
+
+  .calendar-select,
+  .calendar-select:focus {
+    font-size: 20px;
+  }
+
+  .calendar-select option {
+    font-size: 20px;
   }
 
   #summary-panel {
-    zoom: 0.53;
-    width: 720px;
-    margin: 5px auto 10px !important;
-    font-size: 28px;
+    width: 742px;
+    margin: 5px auto 40px;
+    padding: 25px;
+    font-size: 18px;
   }
 
   #summary-panel button {
-    font-size: 23px;
-    padding: 10px 28px;
+    font-size: 16px;
+    padding: 10px 20px;
   }
 }
