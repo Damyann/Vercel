@@ -255,7 +255,7 @@
 }
 
 .calendar-cell.pinned-cell .calendar-select {
-  border: 2px solid #ff3366;
+  border: 1px solid #ff3366;
   box-shadow: 0 0 4px #ff336655;
   color: #ff3366;
 }
