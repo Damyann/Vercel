@@ -41,7 +41,6 @@ form.addEventListener('submit', async (e) => {
           calendarData.month,
           name,
           calendarData.monthName,
-          calendarData.iconUrl,
           calendarData.options,
           calendarData.weights
         );

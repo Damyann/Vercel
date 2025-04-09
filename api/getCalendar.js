@@ -24,7 +24,6 @@ export default async function (req, res) {
   const apiKey = process.env.API_KEY;
 
   try {
-    // 📅 Вземаме година и месец
     const dateRange = 'Месец!A2:B2';
     const dateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(dateRange)}?key=${apiKey}`;
     const dateRes = await fetch(dateUrl);
@@ -39,13 +38,11 @@ export default async function (req, res) {
     const monthNameRaw = values[1].trim().toLowerCase();
     const month = monthMap[monthNameRaw];
     const monthName = values[1].trim();
-    const iconUrl = '/images/Pin.png';
 
     if (isNaN(year) || !month) {
       return res.status(400).json({ error: 'Invalid calendar data' });
     }
 
-    // 🟦 Опции (Q2:R11)
     const optionsRange = 'Месец!Q2:R11';
     const optionsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(optionsRange)}?key=${apiKey}`;
     const optionsRes = await fetch(optionsUrl);
@@ -56,7 +53,6 @@ export default async function (req, res) {
       .filter(row => row[1]?.toLowerCase() === 'true')
       .map(row => row[0]);
 
-    // 🟨 Тежести (Q2:S11)
     const weightsRange = 'Месец!Q2:S11';
     const weightsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(weightsRange)}?key=${apiKey}`;
     const weightsRes = await fetch(weightsUrl);
@@ -74,7 +70,6 @@ export default async function (req, res) {
       year,
       month,
       monthName,
-      iconUrl,
       options,
       weights
     });

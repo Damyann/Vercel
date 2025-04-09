@@ -1,4 +1,4 @@
-export function renderCalendar(year, month, userName, monthName, iconUrl, options, weights) {
+export function renderCalendar(year, month, userName, monthName, options, weights) {
   const container = document.createElement('div');
   container.id = 'calendar';
 
@@ -9,16 +9,10 @@ export function renderCalendar(year, month, userName, monthName, iconUrl, option
   const monthBanner = document.createElement('div');
   monthBanner.className = 'calendar-month-banner';
 
-  const pin = document.createElement('img');
-  pin.src = iconUrl;
-  pin.alt = 'икона';
-  pin.className = 'calendar-month-pin';
-
   const name = document.createElement('span');
   name.className = 'calendar-month-name';
   name.textContent = monthName;
 
-  monthBanner.appendChild(pin);
   monthBanner.appendChild(name);
 
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -65,7 +59,6 @@ export function renderCalendar(year, month, userName, monthName, iconUrl, option
   container.appendChild(grid);
   document.querySelector('.main-content').appendChild(container);
 
-  // Инициализирай логиката със слушатели и изчисления
   init(weights);
 }
 
@@ -79,8 +72,8 @@ function getSelectedValues() {
 function updateSummary(weights) {
   const selected = getSelectedValues();
 
-  let shiftSum = 0;      // Смени: всички с тегло
-  let realShifts = 0;    // Само смени без PH
+  let shiftSum = 0;
+  let realShifts = 0;
   let phCount = 0;
 
   selected.forEach(val => {
@@ -88,20 +81,17 @@ function updateSummary(weights) {
     const weight = weights[normalized] ?? 1;
 
     if (normalized === 'PH') {
-      shiftSum += weight;  // броим теглото на PH само за "Смени"
-      phCount++;           // отделно броим броя PH за "Тотал"
+      shiftSum += weight;
+      phCount++;
     } else {
-      shiftSum += weight;      // броим и за Смени
-      realShifts += weight;    // броим за Total
+      shiftSum += weight;
+      realShifts += weight;
     }
   });
 
-  let total;
-  if (realShifts <= 22) {
-    total = realShifts + phCount;
-  } else {
-    total = 22 + (realShifts - 22) * 1.5 + phCount;
-  }
+  let total = realShifts <= 22
+    ? realShifts + phCount
+    : 22 + (realShifts - 22) * 1.5 + phCount;
 
   const nightSet = new Set(['7+23', '15+23', '2', '23']);
   const night = selected.filter(v => nightSet.has(v)).length;
@@ -121,8 +111,6 @@ function updateSummary(weights) {
 
   renderSummary(summary);
 }
-
-
 
 function renderSummary(summary) {
   const existing = document.getElementById('summary-panel');
