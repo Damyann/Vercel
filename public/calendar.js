@@ -49,8 +49,27 @@ export function renderCalendar(year, month, userName, monthName, options, weight
       select.appendChild(option);
     });
 
+    // Добавяне на бутона за закрепване, който работи чрез CSS класове
+    const pinButton = document.createElement('button');
+    pinButton.className = 'calendar-pin-button';
+    pinButton.textContent = '📌';
+    pinButton.dataset.pinned = 'false';
+    pinButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (pinButton.dataset.pinned === 'true') {
+        pinButton.dataset.pinned = 'false';
+        pinButton.textContent = '📌';
+        pinButton.classList.remove('pinned');
+      } else {
+        pinButton.dataset.pinned = 'true';
+        pinButton.textContent = '✔';
+        pinButton.classList.add('pinned');
+      }
+    });
+
     cell.appendChild(dayNumber);
     cell.appendChild(select);
+    cell.appendChild(pinButton);
     grid.appendChild(cell);
   }
 
@@ -99,8 +118,11 @@ function updateSummary(weights) {
   const daySet = new Set(['7+15', '7+23', '7', '1', '15']);
   const day = selected.filter(v => daySet.has(v)).length;
 
-  const vacation = selected.filter(v => v.toLowerCase() === 'отпуск').length;
-
+  const vacation = selected.filter(v => {
+    const val = v.toLowerCase();
+    return val === 'отпуск' || val === 'ph';
+  }).length;
+  
   const summary = {
     shifts: Math.round(shiftSum * 100) / 100,
     total: Math.round(total * 100) / 100,

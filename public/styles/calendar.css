@@ -2,7 +2,7 @@
 #calendar {
   width: 742px;
   margin: 20px auto 0;
-  padding: 20px;
+  padding: 10px;
   background: linear-gradient(#004746, #111111);
   border: 3px solid #00ffff; /* ⬅️ променено от 4px */
   border-radius: 30px;
@@ -82,7 +82,7 @@
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 100px);
-  grid-auto-rows: 120px;
+  grid-auto-rows: 135px;
   gap: 3px;
   justify-content: center;
   margin: 0 auto;
@@ -189,16 +189,45 @@
   box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
 }
 
+.calendar-pin-button {
+  margin-top: auto;
+  margin-bottom: 4px;
+  width: 5vh;
+  height: 5vh;
+  padding: 0;
+  font-size: 2.2vh;
+  background: transparent;
+  border: 0.2vh solid #00ffff;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  color: inherit;
+  text-align: center;
+  line-height: 5vh; /* центрира символа вертикално */
+}
+
+
+
+.calendar-pin-button:hover {
+  background-color: rgba(0, 255, 255, 0.2); /* Леки ефекти при hover */
+}
+
+.calendar-pin-button.pinned {
+  color: red;                     /* Когато е маркиран, текстът става червен */
+}
+
+
 /* === Мобилен изглед (под 1024px) === */
 @media (max-width: 1024px) {
   #calendar {
     width: calc(100% - 4px);
     max-width: 780px;
     margin: 1vh auto 0;
-    padding: 2vh 3px;
+    padding: 1vh 3px;
     border: 3px solid #00ffff; /* ⬅️ променено */
     border-radius: 2vw;
     box-shadow: 0 0 2vw #00ffff;
+    
   }
 
   .calendar-greeting {
@@ -220,7 +249,7 @@
 
   .calendar-grid {
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    grid-auto-rows: 11vh;
+    grid-auto-rows: 11.5vh;
     column-gap: 2px;
     row-gap: 3px;
     justify-content: stretch;
@@ -265,4 +294,24 @@
     font-size: 4vw;
     padding: 1.2vh 2vw;
   }
+
+  .calendar-pin-button {
+    margin-top: auto;
+    margin-bottom: 3px;
+    width: 4vh;
+    height: 4vh;
+    padding: 0;
+    font-size: 4vw; /* по-балансиран спрямо размера на бутона */
+    border: 0.25vh solid #00ffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: inherit;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    cursor: pointer;
+  }
+  
+
 }
