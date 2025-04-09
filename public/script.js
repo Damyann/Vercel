@@ -42,7 +42,9 @@ form.addEventListener('submit', async (e) => {
           name,
           calendarData.monthName,
           calendarData.options,
-          calendarData.weights
+          calendarData.weights,
+          calendarData.pinLimit,
+          calendarData.pinLimitEnabled
         );
       } else if (calendarData.error) {
         showNotification(calendarData.error);

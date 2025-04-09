@@ -24,7 +24,6 @@ export default async function (req, res) {
   const apiKey = process.env.API_KEY;
 
   try {
-    // Изтегляне на данни за дата
     const dateRange = 'Месец!A2:B2';
     const dateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(dateRange)}?key=${apiKey}`;
     const dateRes = await fetch(dateUrl);
@@ -44,7 +43,6 @@ export default async function (req, res) {
       return res.status(400).json({ error: 'Invalid calendar data' });
     }
 
-    // Изтегляне на опциите
     const optionsRange = 'Месец!Q2:R11';
     const optionsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(optionsRange)}?key=${apiKey}`;
     const optionsRes = await fetch(optionsUrl);
@@ -55,7 +53,6 @@ export default async function (req, res) {
       .filter(row => row[1]?.toLowerCase() === 'true')
       .map(row => row[0]);
 
-    // Изтегляне на тежестите
     const weightsRange = 'Месец!Q2:S11';
     const weightsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(weightsRange)}?key=${apiKey}`;
     const weightsRes = await fetch(weightsUrl);
@@ -66,19 +63,29 @@ export default async function (req, res) {
     weightRows.forEach(row => {
       const label = row[0];
       const parsedValue = parseFloat(row[2]);
-      // Ако parsedValue е NaN, използваме 1, в противен случай запазваме стойността такава, каквато е
       const weight = isNaN(parsedValue) ? 1 : parsedValue;
       if (label) {
         weights[label] = weight;
       }
     });
 
+    const pinLimitRange = 'Месец!O2:O3';
+    const pinLimitUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(pinLimitRange)}?key=${apiKey}`;
+    const pinLimitRes = await fetch(pinLimitUrl);
+    const pinLimitData = await pinLimitRes.json();
+    const pinLimitValues = pinLimitData.values || [];
+
+    const pinLimit = parseInt(pinLimitValues?.[0]?.[0]) || 0;
+    const pinLimitEnabled = pinLimitValues?.[1]?.[0]?.toLowerCase() === 'true';
+
     return res.status(200).json({
       year,
       month,
       monthName,
       options,
-      weights
+      weights,
+      pinLimit,
+      pinLimitEnabled
     });
 
   } catch (error) {
