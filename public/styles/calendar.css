@@ -323,7 +323,7 @@
 
   .calendar-grid {
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    grid-auto-rows: 12vh;
+    grid-auto-rows: 12.5vh;
     column-gap: 4px;
     row-gap: 5px;
     justify-content: stretch;
@@ -371,7 +371,7 @@
 
   .calendar-pin-button {
     margin-top: auto;
-    margin-top: 0vh;
+    margin-top: 0.2vh;
     width: 4vh;
     height: 4vh;
     padding: 0;
