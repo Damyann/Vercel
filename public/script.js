@@ -44,8 +44,10 @@ form.addEventListener('submit', async (e) => {
           calendarData.options,
           calendarData.weights,
           calendarData.pinLimit,
-          calendarData.pinLimitEnabled
+          calendarData.pinLimitEnabled,
+          calendarData.disabledDays || [] // ← нов параметър
         );
+        
       } else if (calendarData.error) {
         showNotification(calendarData.error);
       }

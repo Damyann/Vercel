@@ -1,6 +1,6 @@
 .notification {
   position: fixed;
-  top: 50%;
+  top: 60%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: #f44336;
@@ -26,4 +26,14 @@
 
 .notification.info {
   background-color: #2196F3;
+}
+
+@media (max-width: 1024px) {
+  .notification {
+    top: 58%;
+    font-size: 4vw;
+    max-width: 90vw;
+    padding: 2vh 4vw;
+    border-radius: 2vh;
+  }
 }

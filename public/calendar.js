@@ -1,5 +1,4 @@
-// calendar.js
-export function renderCalendar(year, month, userName, monthName, options, weights, pinLimit, pinLimitEnabled) {
+export function renderCalendar(year, month, userName, monthName, options, weights, pinLimit, pinLimitEnabled, disabledDays = []) {
   const container = document.createElement('div');
   container.id = 'calendar';
 
@@ -29,11 +28,7 @@ export function renderCalendar(year, month, userName, monthName, options, weight
     const totalPinned = document.querySelectorAll('.calendar-pin-button.pinned').length;
     if (pinLimitEnabled) {
       pinCounter.textContent = `Важни дати: ${totalPinned} / ${pinLimit}`;
-      if (totalPinned >= pinLimit) {
-        pinCounter.classList.add('limit-reached');
-      } else {
-        pinCounter.classList.remove('limit-reached');
-      }
+      pinCounter.classList.toggle('limit-reached', totalPinned >= pinLimit);
     }
   };
 
@@ -50,6 +45,17 @@ export function renderCalendar(year, month, userName, monthName, options, weight
     const dayNumber = document.createElement('div');
     dayNumber.className = 'calendar-day-number';
     dayNumber.textContent = d;
+
+    if (disabledDays.includes(d)) {
+      cell.classList.add('disabled-day');
+      const lock = document.createElement('div');
+      lock.className = 'calendar-lock';
+      lock.textContent = '🔒';
+      cell.appendChild(dayNumber);
+      cell.appendChild(lock);
+      grid.appendChild(cell);
+      continue;
+    }
 
     const select = document.createElement('select');
     select.className = 'calendar-select';
@@ -76,20 +82,27 @@ export function renderCalendar(year, month, userName, monthName, options, weight
       const isPinned = pinButton.dataset.pinned === 'true';
 
       if (!isPinned && pinLimitEnabled && currentlyPinned >= pinLimit) return;
+      if (select.value.trim().toUpperCase() === 'PH') return;
 
-      if (isPinned) {
-        pinButton.dataset.pinned = 'false';
-        pinButton.textContent = '📌';
-        pinButton.classList.remove('pinned');
-        cell.classList.remove('pinned-cell');
-      } else {
-        pinButton.dataset.pinned = 'true';
-        pinButton.textContent = '✔';
-        pinButton.classList.add('pinned');
-        cell.classList.add('pinned-cell');
-      }
+      pinButton.dataset.pinned = isPinned ? 'false' : 'true';
+      pinButton.textContent = isPinned ? '📌' : '✔';
+      pinButton.classList.toggle('pinned', !isPinned);
+      cell.classList.toggle('pinned-cell', !isPinned);
 
       updatePinCount();
+    });
+
+    select.addEventListener('change', () => {
+      const value = select.value.trim().toUpperCase();
+      if (value === 'PH') {
+        pinButton.dataset.pinned = 'false';
+        pinButton.textContent = '🔒';
+        pinButton.classList.remove('pinned');
+        cell.classList.remove('pinned-cell');
+        updatePinCount();
+      } else {
+        pinButton.textContent = '📌';
+      }
     });
 
     cell.appendChild(dayNumber);
@@ -108,8 +121,7 @@ export function renderCalendar(year, month, userName, monthName, options, weight
 }
 
 function getSelectedValues() {
-  const selects = document.querySelectorAll('.calendar-select');
-  return Array.from(selects)
+  return Array.from(document.querySelectorAll('.calendar-cell:not(.disabled-day) .calendar-select'))
     .map(s => s.value.trim())
     .filter(v => v !== '');
 }
@@ -117,12 +129,10 @@ function getSelectedValues() {
 function updateSummary(weights) {
   const selected = getSelectedValues();
 
-  let shiftSum = 0;
-  let realShifts = 0;
-  let phCount = 0;
+  let shiftSum = 0, realShifts = 0, phCount = 0;
 
   selected.forEach(val => {
-    const normalized = val.trim().toUpperCase();
+    const normalized = val.toUpperCase();
     const weight = weights[normalized] ?? 1;
     if (normalized === 'PH') {
       shiftSum += weight;
@@ -137,24 +147,11 @@ function updateSummary(weights) {
     ? realShifts + phCount
     : 22 + (realShifts - 22) * 1.5 + phCount;
 
-  const nightSet = new Set(['7+23', '15+23', '2', '23']);
-  const night = selected.filter(v => nightSet.has(v)).length;
-  const daySet = new Set(['7+15', '7+23', '7', '1', '15']);
-  const day = selected.filter(v => daySet.has(v)).length;
-  const vacation = selected.filter(v => {
-    const val = v.toLowerCase();
-    return val === 'отпуск' || val === 'ph';
-  }).length;
+  const night = selected.filter(v => ['7+23', '15+23', '2', '23'].includes(v)).length;
+  const day = selected.filter(v => ['7+15', '7+23', '7', '1', '15'].includes(v)).length;
+  const vacation = selected.filter(v => ['отпуск', 'ph'].includes(v.toLowerCase())).length;
 
-  const summary = {
-    shifts: Math.round(shiftSum * 100) / 100,
-    total: Math.round(total * 100) / 100,
-    night,
-    day,
-    vacation
-  };
-
-  renderSummary(summary);
+  renderSummary({ shifts: shiftSum, total, night, day, vacation });
 }
 
 function renderSummary(summary) {
@@ -169,7 +166,7 @@ function renderSummary(summary) {
     <div>Отпуск: ${summary.vacation}</div>
     <div>Тотал: ${summary.total}</div>
     <div>Дневни: ${summary.day}</div>
-    <div><button class="submit-button">Продължи</button></div>
+    <div><button class=\"submit-button\">Продължи</button></div>
   `;
   document.querySelector('.main-content').appendChild(panel);
 }

@@ -1,18 +1,9 @@
 import fetch from 'node-fetch';
 
 const monthMap = {
-  'януари': 1,
-  'февруари': 2,
-  'март': 3,
-  'април': 4,
-  'май': 5,
-  'юни': 6,
-  'юли': 7,
-  'август': 8,
-  'септември': 9,
-  'октомври': 10,
-  'ноември': 11,
-  'декември': 12
+  'януари': 1, 'февруари': 2, 'март': 3, 'април': 4,
+  'май': 5, 'юни': 6, 'юли': 7, 'август': 8,
+  'септември': 9, 'октомври': 10, 'ноември': 11, 'декември': 12
 };
 
 export default async function (req, res) {
@@ -24,6 +15,7 @@ export default async function (req, res) {
   const apiKey = process.env.API_KEY;
 
   try {
+    // 1. Извличане на година и месец
     const dateRange = 'Месец!A2:B2';
     const dateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(dateRange)}?key=${apiKey}`;
     const dateRes = await fetch(dateUrl);
@@ -43,6 +35,7 @@ export default async function (req, res) {
       return res.status(400).json({ error: 'Invalid calendar data' });
     }
 
+    // 2. Валидни опции
     const optionsRange = 'Месец!Q2:R11';
     const optionsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(optionsRange)}?key=${apiKey}`;
     const optionsRes = await fetch(optionsUrl);
@@ -53,6 +46,7 @@ export default async function (req, res) {
       .filter(row => row[1]?.toLowerCase() === 'true')
       .map(row => row[0]);
 
+    // 3. Тежести
     const weightsRange = 'Месец!Q2:S11';
     const weightsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(weightsRange)}?key=${apiKey}`;
     const weightsRes = await fetch(weightsUrl);
@@ -69,6 +63,7 @@ export default async function (req, res) {
       }
     });
 
+    // 4. Pin лимит
     const pinLimitRange = 'Месец!O2:O3';
     const pinLimitUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(pinLimitRange)}?key=${apiKey}`;
     const pinLimitRes = await fetch(pinLimitUrl);
@@ -78,14 +73,22 @@ export default async function (req, res) {
     const pinLimit = parseInt(pinLimitValues?.[0]?.[0]) || 0;
     const pinLimitEnabled = pinLimitValues?.[1]?.[0]?.toLowerCase() === 'true';
 
+    // 5. Деактивирани дни (TRUE = активен, FALSE = неактивен)
+    const restrictionRange = 'Месец!T2:U32';
+    const restrictionUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(restrictionRange)}?key=${apiKey}`;
+    const restrictionRes = await fetch(restrictionUrl);
+    const restrictionData = await restrictionRes.json();
+    const restrictionRows = restrictionData.values || [];
+
+    const disabledDays = restrictionRows
+      .filter(r => r[1]?.toLowerCase() !== 'true')
+      .map(r => parseInt(r[0]))
+      .filter(n => !isNaN(n));
+
     return res.status(200).json({
-      year,
-      month,
-      monthName,
-      options,
-      weights,
-      pinLimit,
-      pinLimitEnabled
+      year, month, monthName, options,
+      weights, pinLimit, pinLimitEnabled,
+      disabledDays
     });
 
   } catch (error) {
