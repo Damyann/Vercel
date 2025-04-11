@@ -1,0 +1,200 @@
+#work-preferences-panel {
+    width: 742px;
+    max-width: 90vw;
+    margin: 6vh auto 3vh;
+    background: linear-gradient(145deg, #1e2235, #131722);
+    border: 0.5vh solid #8afff1;
+    border-radius: 30px;
+    box-shadow: 0 0 8px #8afff188;
+    color: #8afff1;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
+    min-height: 600px;
+    
+    /* Анимация за плавно влизане */
+    animation: slide-in 1s ease forwards;
+  }
+  
+  #work-preferences-panel h2 {
+    font-size: 28px;
+    margin-bottom: 5px;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    color: #8afff1;
+  }
+  
+  #work-preferences-panel p {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #8afff1cc;
+  }
+  
+  .options-columns {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5vw;
+  }
+  
+  .option-column {
+    flex: 1 1 30%;
+    min-width: 120px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .option-column h3 {
+    font-size: 20px;
+    margin-bottom: 5px;
+    color: #8afff1;
+  }
+  
+  .option-list {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin: 0 auto;
+    max-width: 120px;
+  }
+  
+  .option-list input[type="radio"] {
+    display: none;
+  }
+  
+  .option-list label {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    color: #ffffff;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+    padding-left: 30px;
+  }
+  
+  .option-list label::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #8afff1;
+    border-radius: 50%;
+    background-color: transparent;
+    box-shadow: 0 0 5px #8afff155;
+    transition: all 0.3s ease;
+  }
+  
+  .option-list input[type="radio"]:checked + label::before {
+    background-color: #8afff1;
+    box-shadow: 0 0 10px #8afff1aa;
+  }
+  
+  /* Анимации */
+  @keyframes slideIn {
+    0% { 
+      transform: translateX(100%) scale(0.9); /* Стартово с леко намален размер */
+      opacity: 0; 
+    }
+    50% {
+      transform: translateX(0) scale(1); /* Преминава към нормален размер */
+      opacity: 0.5;
+    }
+    100% { 
+      transform: translateX(0) scale(1); /* Завършва на нормален размер */
+      opacity: 1; 
+    }
+  }
+  
+  @keyframes slideOutLeft {
+    0% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(-100%); opacity: 0; }
+  }
+  
+  .slide-out-left {
+    animation: slideOutLeft 0.7s ease-out forwards;
+  }
+  
+  .slide-in {
+    animation: slideIn 1s ease forwards; /* Увеличаваме времето до 1s */
+  }
+  
+  /* 📱 Мобилна версия */
+  @media (max-width: 1024px) {
+    #work-preferences-panel {
+      width: calc(100% - 4px);
+      max-width: 780px;
+      margin: 1vh auto 0;
+      padding: 1vh 3px;
+      border: 2px solid #8afff1;
+      border-radius: 2vw;
+      box-shadow: 0 0 1.5vw #8afff188;
+      font-size: 4vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 42vh;
+    }
+  
+    #work-preferences-panel h2 {
+      font-size: 5vw;
+      margin-bottom: 0;
+    }
+  
+    #work-preferences-panel p {
+      font-size: 4.5vw;
+      margin-bottom: 2vh;
+    }
+  
+    .options-columns {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4vw;
+    }
+  
+    .option-column {
+      flex: 1 1 28%;
+      min-width: 100px;
+    }
+  
+    .option-column h3 {
+      font-size: 4.5vw;
+    }
+  
+    .option-list {
+      align-items: flex-start;
+      max-width: 100px;
+      gap: 16px;
+    }
+  
+    .option-list label {
+      font-size: 4vw;
+      gap: 2vw;
+      padding-left: 30px;
+    }
+  
+    .option-list label::before {
+      width: 20px;
+      height: 20px;
+    }
+  
+    .option-list input[type="radio"]:checked + label::before {
+      background-color: #8afff1;
+      box-shadow: 0 0 10px #8afff1aa;
+    }
+  }
+  

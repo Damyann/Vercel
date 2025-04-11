@@ -1,3 +1,6 @@
+// ✅ calendar.js
+import { showWorkPreferencesPanel } from './getoptions.js';
+
 export function renderCalendar(year, month, userName, monthName, options, weights, pinLimit, pinLimitEnabled, disabledDays = []) {
   const container = document.createElement('div');
   container.id = 'calendar';
@@ -116,7 +119,9 @@ export function renderCalendar(year, month, userName, monthName, options, weight
   container.appendChild(grid);
   document.querySelector('.main-content').appendChild(container);
 
-  init(weights);
+  renderSummary({ shifts: 0, total: 0, night: 0, day: 0, vacation: 0 }, userName); // 👈 винаги показваме панела
+
+  init(weights, userName);
   updatePinCount();
 }
 
@@ -126,7 +131,7 @@ function getSelectedValues() {
     .filter(v => v !== '');
 }
 
-function updateSummary(weights) {
+function updateSummary(weights, userName) {
   const selected = getSelectedValues();
 
   let shiftSum = 0, realShifts = 0, phCount = 0;
@@ -151,10 +156,10 @@ function updateSummary(weights) {
   const day = selected.filter(v => ['7+15', '7+23', '7', '1', '15'].includes(v)).length;
   const vacation = selected.filter(v => ['отпуск', 'ph'].includes(v.toLowerCase())).length;
 
-  renderSummary({ shifts: shiftSum, total, night, day, vacation });
+  renderSummary({ shifts: shiftSum, total, night, day, vacation }, userName);
 }
 
-function renderSummary(summary) {
+function renderSummary(summary, userName) {
   const existing = document.getElementById('summary-panel');
   if (existing) existing.remove();
 
@@ -166,16 +171,20 @@ function renderSummary(summary) {
     <div>Отпуск: ${summary.vacation}</div>
     <div>Тотал: ${summary.total}</div>
     <div>Дневни: ${summary.day}</div>
-    <div><button class=\"submit-button\">Продължи</button></div>
+    <div><button class="submit-button">Продължи</button></div>
   `;
+
+  panel.querySelector('.submit-button').addEventListener('click', () => {
+    showWorkPreferencesPanel(userName);
+  });
+
   document.querySelector('.main-content').appendChild(panel);
 }
 
-function init(weights) {
+function init(weights, userName) {
   setTimeout(() => {
     document.querySelectorAll('.calendar-select').forEach(select => {
-      select.addEventListener('change', () => updateSummary(weights));
+      select.addEventListener('change', () => updateSummary(weights, userName));
     });
-    updateSummary(weights);
-  }, 0);
+  }, 50);
 }
