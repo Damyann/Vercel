@@ -1,5 +1,5 @@
 // ✅ calendar.js
-import { showWorkPreferencesPanel } from './getoptions.js';
+import { showWorkPreferencesPanel } from './options.js';
 
 export function renderCalendar(year, month, userName, monthName, options, weights, pinLimit, pinLimitEnabled, disabledDays = []) {
   const container = document.createElement('div');

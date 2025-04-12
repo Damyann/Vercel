@@ -1,5 +1,5 @@
 import { renderCalendar } from './calendar.js';
-import { showWorkPreferencesPanel } from './getoptions.js';
+import { showWorkPreferencesPanel } from './options.js';
 
 const form = document.getElementById('loginForm');
 const notification = document.getElementById('notification');
@@ -28,7 +28,7 @@ form.addEventListener('submit', async (e) => {
     const result = await response.json();
 
     if (response.ok && result.success) {
-      localStorage.setItem('userName', name); // 👈 запазваме името
+      localStorage.setItem('userName', name); 
 
       form.style.display = 'none';
 
@@ -42,7 +42,7 @@ form.addEventListener('submit', async (e) => {
         renderCalendar(
           calendarData.year,
           calendarData.month,
-          name, // 👈 подаваме името
+          name, 
           calendarData.monthName,
           calendarData.options,
           calendarData.weights,
