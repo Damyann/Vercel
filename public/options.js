@@ -1,6 +1,8 @@
 // Функция за създаване на колоните с опции
 import { renderCalendar } from './calendar.js';
 
+let isPanelTransitioning = false;
+
 function createOptionColumn(title, optionValues, group) {
     let html = `<div class="option-column"><h3>${title}</h3><div class="option-list">`;
   
@@ -18,6 +20,13 @@ function createOptionColumn(title, optionValues, group) {
   
   // Главната функция за показване на панела с опции
   export async function showWorkPreferencesPanel(userName) {
+    // Проверяваме дали вече има панел или е в процес на преход
+    if (document.getElementById('work-preferences-panel') || isPanelTransitioning) {
+      return;
+    }
+
+    isPanelTransitioning = true;
+  
     // Извикваме API-то, за да получим данните
     const response = await fetch('/api/getOptions');
     const options = await response.json();
@@ -50,7 +59,7 @@ function createOptionColumn(title, optionValues, group) {
       </div>
       <div class="options-buttons">
         <button class="back-button">Назад</button>
-        <button class="swap-button">Размени</button>
+        <button class="swap-button">Изпрати</button>
       </div>
     `;
   
@@ -62,6 +71,9 @@ function createOptionColumn(title, optionValues, group) {
     const continueButton = panel.querySelector('.swap-button');
 
     backButton.addEventListener('click', () => {
+      if (isPanelTransitioning) return;
+      isPanelTransitioning = true;
+
       // Запазваме избраните опции
       const selectedOptions = {
         night: document.querySelector('input[name="night"]:checked')?.value,
@@ -148,6 +160,8 @@ function createOptionColumn(title, optionValues, group) {
               showNotification('Възникна грешка при зареждането на календара.');
             });
         }
+
+        isPanelTransitioning = false;
       };
 
       // Добавяме event listener за анимацията
@@ -158,13 +172,19 @@ function createOptionColumn(title, optionValues, group) {
     });
 
     continueButton.addEventListener('click', () => {
+      if (isPanelTransitioning) return;
+      isPanelTransitioning = true;
+
       // Тук ще добавим логиката за продължаване
       // За сега само показваме съобщение
       showNotification('Функционалността за продължаване ще бъде добавена скоро.');
+      isPanelTransitioning = false;
     });
 
     // Изтриваме старите елементи веднага
     if (oldCalendar) oldCalendar.remove();
     if (oldSummary) oldSummary.remove();
+
+    isPanelTransitioning = false;
   }
   

@@ -132,7 +132,13 @@ export function renderCalendar(year, month, userName, monthName, options, weight
         cell.classList.remove('pinned-cell');
         updatePinCount();
       } else {
-        pinButton.textContent = '📌';
+        // Запазваме състоянието на pin бутона
+        const isPinned = pinButton.dataset.pinned === 'true';
+        if (isPinned) {
+          pinButton.textContent = '✔';
+        } else {
+          pinButton.textContent = '📌';
+        }
       }
 
       // Запазваме избраната стойност

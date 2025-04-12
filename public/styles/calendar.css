@@ -182,6 +182,15 @@
   box-shadow: inset 0 0 12px rgba(138, 255, 241, 0.3); /* подсилено сияние */
 }
 
+.calendar-cell.weekend .calendar-day-number {
+  color: #00ff00;
+  text-shadow: 0 0 4px #00ff00;
+}
+
+.calendar-cell.weekend.pinned-cell .calendar-day-number {
+  color: #00ff00;
+  text-shadow: 0 0 4px #00ff00;
+}
 
 #summary-panel {
   width: 742px;
@@ -267,7 +276,6 @@
   text-shadow: 0 0 4px #ff3366;
 }
 
-
 .calendar-cell.disabled-day {
   opacity: 0.85 !important;
   position: relative !important;
@@ -284,8 +292,6 @@
   z-index: 1 !important;
   pointer-events: none !important;
 }
-
-
 
 @media (max-width: 1024px) {
   #calendar {

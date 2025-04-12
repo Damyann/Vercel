@@ -1,6 +1,5 @@
-/* Login form - mobile responsive version with perfect circle and unified media query */
 .login-form {
-  width: clamp(28vh, 35vh, 90vw);
+  width: clamp(30vh, 35vh, 90vw);
   aspect-ratio: 1 / 1;
   margin: 6vh auto 3vh;
   background: linear-gradient(#004746, #111111);
@@ -13,12 +12,14 @@
   align-items: center;
   padding: 2vh;
   text-align: center;
+  position: relative;
 }
 
 .login-form h1 {
   color: #00ffff;
   font-size: 2.2vh;
   margin-bottom: 1.5vh;
+  margin-top: 7vh;
 }
 
 .form-layout {
@@ -27,7 +28,7 @@
   flex-direction: column;
   gap: 1.5vh;
   align-items: center;
-  padding-top: 2vh;
+  padding-top: 1vh;
 }
 
 .form-group {
@@ -48,6 +49,7 @@
   text-align: center;
   font-size: 2.3vh;
   box-shadow: 0 0 1vh #00ffff55;
+  margin-top: -0.5vh;
 }
 
 .form-field input::placeholder {
@@ -97,19 +99,21 @@
 
 @media (max-width: 1024px) {
   .login-form {
-    width: clamp(32vh, 60vw, 90vw);
+    width: clamp(35vh, 50vw, 90vw);
     aspect-ratio: 1 / 1;
     border-radius: 50%;
     margin: 4vh auto;
-    padding: 3vh;
+    padding: 3.5vh;
   }
 
   .login-form h1 {
     font-size: 5vw;
+    margin-top: 7vh;
   }
 
   .form-field input {
     font-size: 4.5vw;
+    margin-top: -0.5vh;
   }
 
   .submit-button {
@@ -119,6 +123,6 @@
   }
 
   .form-layout {
-    padding-top: 3vh;
+    padding-top: 1.5vh;
   }
 }
