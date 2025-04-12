@@ -1,6 +1,9 @@
 import { renderCalendar } from './calendar.js';
 import { showWorkPreferencesPanel } from './options.js';
 
+// Изчистваме sessionStorage при зареждане на страницата
+sessionStorage.clear();
+
 const form = document.getElementById('loginForm');
 const notification = document.getElementById('notification');
 

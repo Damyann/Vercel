@@ -106,30 +106,35 @@
   /* Анимации */
   @keyframes slideIn {
     0% { 
-      transform: translateX(100%) scale(0.9); /* Стартово с леко намален размер */
+      transform: translateX(100%) scale(0.98);
       opacity: 0; 
     }
-    50% {
-      transform: translateX(0) scale(1); /* Преминава към нормален размер */
-      opacity: 0.5;
-    }
     100% { 
-      transform: translateX(0) scale(1); /* Завършва на нормален размер */
+      transform: translateX(0) scale(1);
       opacity: 1; 
     }
   }
   
   @keyframes slideOutLeft {
-    0% { transform: translateX(0); opacity: 1; }
-    100% { transform: translateX(-100%); opacity: 0; }
+    0% { 
+      transform: translateX(0) scale(1);
+      opacity: 1; 
+    }
+    100% { 
+      transform: translateX(-100%) scale(0.98);
+      opacity: 0; 
+    }
   }
   
   .slide-out-left {
-    animation: slideOutLeft 0.7s ease-out forwards;
+    animation: slideOutLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    position: absolute;
+    width: 100%;
   }
   
   .slide-in {
-    animation: slideIn 1s ease forwards; /* Увеличаваме времето до 1s */
+    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    position: relative;
   }
   
   /* 📱 Мобилна версия */
@@ -146,7 +151,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 42vh;
+      min-height: 48vh;
     }
   
     #work-preferences-panel h2 {
@@ -155,7 +160,7 @@
     }
   
     #work-preferences-panel p {
-      font-size: 4.5vw;
+      font-size: 4vw;
       margin-bottom: 2vh;
     }
   
@@ -196,5 +201,64 @@
       background-color: #8afff1;
       box-shadow: 0 0 10px #8afff1aa;
     }
+  
+    .options-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 50px;
+      width: 100%;
+    }
+  
+    .options-buttons button {
+      background-color: #8afff1;
+      color: #111;
+      border: none;
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 0 6px #8afff199;
+      transition: 0.3s;
+      min-width: 120px;
+    }
+  }
+  
+  .options-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+    width: 100%;
+  }
+  
+  .options-buttons button {
+    background-color: #8afff1;
+    color: #111;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 0 6px #8afff199;
+    transition: 0.3s;
+    min-width: 120px;
+  }
+  
+  .options-buttons button:hover {
+    background-color: #6ee7e1;
+    box-shadow: 0 0 10px #8afff166;
+  }
+  
+  .options-buttons .back-button {
+    background-color: #8afff1;
+    box-shadow: 0 0 6px #8afff199;
+  }
+  
+  .options-buttons .back-button:hover {
+    background-color: #6ee7e1;
+    box-shadow: 0 0 10px #8afff166;
   }
   

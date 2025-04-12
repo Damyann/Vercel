@@ -1,7 +1,12 @@
 // ✅ calendar.js
-import { showWorkPreferencesPanel } from './options.js';
 
 export function renderCalendar(year, month, userName, monthName, options, weights, pinLimit, pinLimitEnabled, disabledDays = []) {
+  // Премахваме съществуващия календар, ако има такъв
+  const existingCalendar = document.getElementById('calendar');
+  if (existingCalendar) {
+    existingCalendar.remove();
+  }
+
   const container = document.createElement('div');
   container.id = 'calendar';
 
@@ -26,6 +31,10 @@ export function renderCalendar(year, month, userName, monthName, options, weight
   const daysInMonth = new Date(year, month, 0).getDate();
   const grid = document.createElement('div');
   grid.className = 'calendar-grid';
+
+  // Възстановяваме запазените опции от sessionStorage
+  const savedOptions = JSON.parse(sessionStorage.getItem('selectedOptions') || '{}');
+  const savedSelections = JSON.parse(sessionStorage.getItem('calendarSelections') || '{}');
 
   const updatePinCount = () => {
     const totalPinned = document.querySelectorAll('.calendar-pin-button.pinned').length;
@@ -73,10 +82,23 @@ export function renderCalendar(year, month, userName, monthName, options, weight
       select.appendChild(option);
     });
 
+    // Възстановяваме запазената селекция за този ден
+    if (savedSelections[d]) {
+      select.value = savedSelections[d];
+    }
+
     const pinButton = document.createElement('button');
     pinButton.className = 'calendar-pin-button';
     pinButton.textContent = '📌';
     pinButton.dataset.pinned = 'false';
+
+    // Възстановяваме запазеното състояние на pin бутона
+    if (savedSelections[`pin-${d}`]) {
+      pinButton.dataset.pinned = 'true';
+      pinButton.textContent = '✔';
+      pinButton.classList.add('pinned');
+      cell.classList.add('pinned-cell');
+    }
 
     pinButton.addEventListener('click', (e) => {
       e.preventDefault();
@@ -92,6 +114,11 @@ export function renderCalendar(year, month, userName, monthName, options, weight
       pinButton.classList.toggle('pinned', !isPinned);
       cell.classList.toggle('pinned-cell', !isPinned);
 
+      // Запазваме състоянието на pin бутона
+      const selections = JSON.parse(sessionStorage.getItem('calendarSelections') || '{}');
+      selections[`pin-${d}`] = !isPinned;
+      sessionStorage.setItem('calendarSelections', JSON.stringify(selections));
+
       updatePinCount();
     });
 
@@ -106,6 +133,11 @@ export function renderCalendar(year, month, userName, monthName, options, weight
       } else {
         pinButton.textContent = '📌';
       }
+
+      // Запазваме избраната стойност
+      const selections = JSON.parse(sessionStorage.getItem('calendarSelections') || '{}');
+      selections[d] = value;
+      sessionStorage.setItem('calendarSelections', JSON.stringify(selections));
     });
 
     cell.appendChild(dayNumber);
@@ -119,7 +151,7 @@ export function renderCalendar(year, month, userName, monthName, options, weight
   container.appendChild(grid);
   document.querySelector('.main-content').appendChild(container);
 
-  renderSummary({ shifts: 0, total: 0, night: 0, day: 0, vacation: 0 }, userName); // 👈 винаги показваме панела
+  renderSummary({ shifts: 0, total: 0, night: 0, day: 0, vacation: 0 }, userName);
 
   init(weights, userName);
   updatePinCount();
@@ -174,8 +206,11 @@ function renderSummary(summary, userName) {
     <div><button class="submit-button">Продължи</button></div>
   `;
 
-  panel.querySelector('.submit-button').addEventListener('click', () => {
-    showWorkPreferencesPanel(userName);
+  // Импортираме showWorkPreferencesPanel само когато е нужен
+  import('./options.js').then(({ showWorkPreferencesPanel }) => {
+    panel.querySelector('.submit-button').addEventListener('click', () => {
+      showWorkPreferencesPanel(userName);
+    });
   });
 
   document.querySelector('.main-content').appendChild(panel);
