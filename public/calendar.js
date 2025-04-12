@@ -120,6 +120,7 @@ export function renderCalendar(year, month, userName, monthName, options, weight
       sessionStorage.setItem('calendarSelections', JSON.stringify(selections));
 
       updatePinCount();
+      updateSummary(weights, userName);
     });
 
     select.addEventListener('change', () => {
@@ -138,6 +139,7 @@ export function renderCalendar(year, month, userName, monthName, options, weight
       const selections = JSON.parse(sessionStorage.getItem('calendarSelections') || '{}');
       selections[d] = value;
       sessionStorage.setItem('calendarSelections', JSON.stringify(selections));
+      updateSummary(weights, userName);
     });
 
     cell.appendChild(dayNumber);
@@ -151,7 +153,8 @@ export function renderCalendar(year, month, userName, monthName, options, weight
   container.appendChild(grid);
   document.querySelector('.main-content').appendChild(container);
 
-  renderSummary({ shifts: 0, total: 0, night: 0, day: 0, vacation: 0 }, userName);
+  // Актуализираме панела със сметките веднага след възстановяване на календара
+  updateSummary(weights, userName);
 
   init(weights, userName);
   updatePinCount();

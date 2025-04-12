@@ -27,6 +27,7 @@
   flex-direction: column;
   gap: 1.5vh;
   align-items: center;
+  padding-top: 2vh;
 }
 
 .form-group {
@@ -53,6 +54,7 @@
   color: #00ffff88;
 }
 
+/* Стилове за бутона Вход */
 .submit-button {
   background-color: #00ffff;
   color: #111;
@@ -64,11 +66,33 @@
   cursor: pointer;
   box-shadow: 0 0 1.2vh #00ffffaa;
   transition: 0.3s;
+  margin-bottom: 2vh;
 }
 
 .submit-button:hover {
   background-color: #00e0e0;
   box-shadow: 0 0 2vh #00ffff, 0 0 3vh #00ffff;
+}
+
+.submit-button.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.submit-button.loading::after {
+  content: '';
+  position: absolute;
+  display: inline-block;
+  width: 0;
+  animation: loadingDots 1.5s infinite;
+}
+
+@keyframes loadingDots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+  100% { content: ''; }
 }
 
 @media (max-width: 1024px) {
@@ -91,5 +115,10 @@
   .submit-button {
     font-size: 4vw;
     padding: 1.5vh 2.5vh;
+    margin-bottom: 3vh;
+  }
+
+  .form-layout {
+    padding-top: 3vh;
   }
 }

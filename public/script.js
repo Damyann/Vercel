@@ -18,6 +18,11 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
+  const submitButton = form.querySelector('.submit-button');
+  const originalButtonText = submitButton.textContent;
+  submitButton.textContent = 'Вписваване';
+  submitButton.classList.add('loading');
+
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
 
@@ -58,9 +63,13 @@ form.addEventListener('submit', async (e) => {
       }
     } else if (result.error) {
       showNotification(result.error);
+      submitButton.textContent = originalButtonText;
+      submitButton.classList.remove('loading');
     }
   } catch {
     showNotification('Възникна грешка при изпращането.');
+    submitButton.textContent = originalButtonText;
+    submitButton.classList.remove('loading');
   }
 });
 

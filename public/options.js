@@ -50,7 +50,7 @@ function createOptionColumn(title, optionValues, group) {
       </div>
       <div class="options-buttons">
         <button class="back-button">Назад</button>
-        <button class="submit-button">Размени</button>
+        <button class="swap-button">Размени</button>
       </div>
     `;
   
@@ -59,7 +59,7 @@ function createOptionColumn(title, optionValues, group) {
   
     // Добавяме event listeners за бутоните
     const backButton = panel.querySelector('.back-button');
-    const continueButton = panel.querySelector('.submit-button');
+    const continueButton = panel.querySelector('.swap-button');
 
     backButton.addEventListener('click', () => {
       // Запазваме избраните опции
@@ -70,8 +70,6 @@ function createOptionColumn(title, optionValues, group) {
       };
 
       // Добавяме анимация за изчезване
-      panel.style.position = 'absolute';
-      panel.style.width = '100%';
       panel.classList.add('slide-out-left');
       
       // След края на анимацията премахваме панела и показваме календара

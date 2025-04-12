@@ -17,9 +17,7 @@
     padding: 10px;
     box-sizing: border-box;
     min-height: 600px;
-    
-    /* Анимация за плавно влизане */
-    animation: slide-in 1s ease forwards;
+  animation: slide-in 1s ease forwards;
   }
   
   #work-preferences-panel h2 {
@@ -129,7 +127,8 @@
   .slide-out-left {
     animation: slideOutLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     position: absolute;
-    width: 100%;
+    width: 742px;
+    max-width: 90vw;
   }
   
   .slide-in {
@@ -227,8 +226,9 @@
   
   .options-buttons {
     display: flex;
+    flex-direction: row;
     justify-content: center;
-    gap: 20px;
+    gap: 15px;
     margin-top: 30px;
     width: 100%;
   }
@@ -238,13 +238,14 @@
     color: #111;
     border: none;
     border-radius: 25px;
-    padding: 10px 20px;
+    padding: 8px 16px;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
     box-shadow: 0 0 6px #8afff199;
-    transition: 0.3s;
-    min-width: 120px;
+    transition: all 0.3s ease;
+    min-width: 100px;
+    width: auto;
   }
   
   .options-buttons button:hover {
@@ -253,12 +254,38 @@
   }
   
   .options-buttons .back-button {
-    background-color: #8afff1;
-    box-shadow: 0 0 6px #8afff199;
+    background-color: transparent;
+    color: #8afff1;
+    border: 2px solid #8afff1;
   }
   
   .options-buttons .back-button:hover {
+    background-color: #8afff1;
+    color: #111;
+    box-shadow: 0 0 10px #8afff1aa;
+  }
+  
+  .options-buttons .swap-button {
+    background-color: #8afff1;
+    color: #111;
+    border: none;
+  }
+  
+  .options-buttons .swap-button:hover {
     background-color: #6ee7e1;
     box-shadow: 0 0 10px #8afff166;
+  }
+  
+  @media (max-width: 1024px) {
+    .options-buttons {
+      gap: 2vh;
+      margin-top: 3vh;
+    }
+  
+    .options-buttons button {
+      font-size: 3vw;
+      padding: 1vh 2vh;
+      min-width: 80px;
+    }
   }
   
