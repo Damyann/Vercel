@@ -1,4 +1,6 @@
-import fetch from 'node-fetch';
+import { google } from 'googleapis';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const monthMap = {
   'януари': 1, 'февруари': 2, 'март': 3, 'април': 4,
@@ -11,88 +13,92 @@ export default async function (req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const sheetId = process.env.SHEET_ID;
-  const apiKey = process.env.API_KEY;
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const credentialsPath = path.join(__dirname, '..', 'secrets', 'zaqvki-8d41b171a08f.json');
 
   try {
+    const auth = new google.auth.GoogleAuth({
+      keyFile: credentialsPath,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
+    });
+
+    const sheets = google.sheets({ version: 'v4', auth });
+    const sheetId = process.env.SHEET_ID;
+
     // 1. Извличане на година и месец
-    const dateRange = 'Месец!A2:B2';
-    const dateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(dateRange)}?key=${apiKey}`;
-    const dateRes = await fetch(dateUrl);
-    const dateData = await dateRes.json();
-    const values = dateData.values?.[0];
+    const dateRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Месец!A2:B2'
+    });
 
-    if (!values || values.length < 2) {
-      return res.status(400).json({ error: 'Missing calendar data' });
-    }
-
+    const values = dateRes.data.values?.[0] || [];
     const year = parseInt(values[0]);
-    const monthNameRaw = values[1].trim().toLowerCase();
-    const month = monthMap[monthNameRaw];
-    const monthName = values[1].trim();
+    const rawMonth = values[1]?.trim();
+    const monthKey = rawMonth?.toLowerCase();
+    const month = monthMap[monthKey];
+    const monthName = rawMonth?.charAt(0).toUpperCase() + rawMonth?.slice(1).toLowerCase();
 
-    if (isNaN(year) || !month) {
-      return res.status(400).json({ error: 'Invalid calendar data' });
+    if (!year || !month || !monthName) {
+      return res.status(400).json({ error: 'Невалидни данни за месец/година' });
     }
 
     // 2. Валидни опции
-    const optionsRange = 'Месец!Q2:R11';
-    const optionsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(optionsRange)}?key=${apiKey}`;
-    const optionsRes = await fetch(optionsUrl);
-    const optionsData = await optionsRes.json();
-    const rows = optionsData.values || [];
+    const optionsRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Месец!Q2:R11'
+    });
 
-    const options = rows
-      .filter(row => row[1]?.toLowerCase() === 'true')
-      .map(row => row[0]);
+    const options = (optionsRes.data.values || [])
+      .filter(r => r[1]?.toLowerCase() === 'true')
+      .map(r => r[0]);
 
     // 3. Тежести
-    const weightsRange = 'Месец!Q2:S11';
-    const weightsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(weightsRange)}?key=${apiKey}`;
-    const weightsRes = await fetch(weightsUrl);
-    const weightsData = await weightsRes.json();
-    const weightRows = weightsData.values || [];
+    const weightsRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Месец!Q2:S11'
+    });
 
     const weights = {};
-    weightRows.forEach(row => {
+    (weightsRes.data.values || []).forEach(row => {
       const label = row[0];
-      const parsedValue = parseFloat(row[2]);
-      const weight = isNaN(parsedValue) ? 1 : parsedValue;
-      if (label) {
-        weights[label] = weight;
-      }
+      const weight = parseFloat(row[2]);
+      if (label && !isNaN(weight)) weights[label] = weight;
     });
 
     // 4. Pin лимит
-    const pinLimitRange = 'Месец!O2:O3';
-    const pinLimitUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(pinLimitRange)}?key=${apiKey}`;
-    const pinLimitRes = await fetch(pinLimitUrl);
-    const pinLimitData = await pinLimitRes.json();
-    const pinLimitValues = pinLimitData.values || [];
+    const pinLimitRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Месец!O2:O3'
+    });
 
-    const pinLimit = parseInt(pinLimitValues?.[0]?.[0]) || 0;
-    const pinLimitEnabled = pinLimitValues?.[1]?.[0]?.toLowerCase() === 'true';
+    const pinLimitVals = pinLimitRes.data.values || [];
+    const pinLimit = parseInt(pinLimitVals?.[0]?.[0]) || 0;
+    const pinLimitEnabled = pinLimitVals?.[1]?.[0]?.toLowerCase() === 'true';
 
-    // 5. Деактивирани дни (TRUE = активен, FALSE = неактивен)
-    const restrictionRange = 'Месец!T2:U32';
-    const restrictionUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(restrictionRange)}?key=${apiKey}`;
-    const restrictionRes = await fetch(restrictionUrl);
-    const restrictionData = await restrictionRes.json();
-    const restrictionRows = restrictionData.values || [];
+    // 5. Деактивирани дни
+    const disabledRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Месец!T2:U32'
+    });
 
-    const disabledDays = restrictionRows
+    const disabledDays = (disabledRes.data.values || [])
       .filter(r => r[1]?.toLowerCase() !== 'true')
       .map(r => parseInt(r[0]))
       .filter(n => !isNaN(n));
 
     return res.status(200).json({
-      year, month, monthName, options,
-      weights, pinLimit, pinLimitEnabled,
+      year,
+      month,
+      monthName,
+      options,
+      weights,
+      pinLimit,
+      pinLimitEnabled,
       disabledDays
     });
-
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('getCalendar error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

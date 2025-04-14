@@ -1,52 +1,41 @@
-import fetch from 'node-fetch';
+import { google } from 'googleapis';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 export default async function (req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const sheetId = process.env.SHEET_ID;
-  const apiKey = process.env.API_KEY;
-
-  const ranges = {
-    nights: 'Месец!E2:I3',
-    shifts: 'Месец!J2:M3',
-    extra: 'Месец!N3',
-  };
-
-  const makeUrl = (range) =>
-    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const credentialsPath = path.join(__dirname, '..', 'secrets', 'zaqvki-8d41b171a08f.json');
 
   try {
-    // 1. Брой нощни
-    const nightRes = await fetch(makeUrl(ranges.nights));
-    const nightData = await nightRes.json();
-    const nightRows = nightData.values || [[], []];
+    const auth = new google.auth.GoogleAuth({
+      keyFile: credentialsPath,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
+    });
 
-    const nightCounts = nightRows[0]
-      .map((val, i) => nightRows[1]?.[i]?.toLowerCase() === 'true' ? val : null)
-      .filter(v => v !== null);
+    const sheets = google.sheets({ version: 'v4', auth });
+    const sheetId = process.env.SHEET_ID;
 
-    // 2. Вид смени
-    const shiftRes = await fetch(makeUrl(ranges.shifts));
-    const shiftData = await shiftRes.json();
-    const shiftRows = shiftData.values || [[], []];
+    // Четене от нужните диапазони
+    const [nightData, shiftData, extraData] = await Promise.all([
+      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Месец!E2:I3' }),
+      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Месец!J2:M3' }),
+      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Месец!N3' })
+    ]);
 
-    const shiftTypes = shiftRows[0]
-      .map((val, i) => shiftRows[1]?.[i]?.toLowerCase() === 'true' ? val : null)
-      .filter(v => v !== null);
-
-    // 3. Екстра смени
-    const extraRes = await fetch(makeUrl(ranges.extra));
-    const extraData = await extraRes.json();
-    const extraEnabled = extraData.values?.[0]?.[0]?.toLowerCase() === 'true';
+    const nightCounts = nightData.data.values?.[0]?.filter(Boolean) || [];
+    const shiftTypes = shiftData.data.values?.[0]?.filter(Boolean) || [];
+    const extraEnabled = extraData.data.values?.[0]?.[0]?.toLowerCase() === 'true';
 
     return res.status(200).json({
       nightCounts,
       shiftTypes,
       extraEnabled
     });
-
   } catch (err) {
     console.error('getOptions error:', err);
     return res.status(500).json({ error: 'Internal server error' });

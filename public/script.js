@@ -20,7 +20,7 @@ form.addEventListener('submit', async (e) => {
 
   const submitButton = form.querySelector('.submit-button');
   const originalButtonText = submitButton.textContent;
-  submitButton.textContent = 'Вписваване';
+  submitButton.textContent = 'Вписване...';
   submitButton.classList.add('loading');
 
   const name = document.getElementById('name').value.trim();
@@ -36,7 +36,8 @@ form.addEventListener('submit', async (e) => {
     const result = await response.json();
 
     if (response.ok && result.success) {
-      localStorage.setItem('userName', name); 
+      // ⬇️ Запазваме точното име от таблицата
+      localStorage.setItem('userName', result.name);
 
       form.style.display = 'none';
 
@@ -50,7 +51,7 @@ form.addEventListener('submit', async (e) => {
         renderCalendar(
           calendarData.year,
           calendarData.month,
-          name, 
+          result.name, // ⬅️ използваме името от таблицата
           calendarData.monthName,
           calendarData.options,
           calendarData.weights,

@@ -1,4 +1,6 @@
-import fetch from 'node-fetch';
+import { google } from 'googleapis';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 export default async function (req, res) {
   if (req.method !== 'POST') {
@@ -7,33 +9,44 @@ export default async function (req, res) {
 
   const { name, email } = req.body;
 
-  // Проверка за празни полета
   if (!name || !email) {
-    return res.status(200).json({ success: false, error: 'Моля, попълнете и двете полета' });
+    return res.status(400).json({ error: 'Липсва име или имейл' });
   }
 
-  const sheetId = process.env.SHEET_ID;
-  const apiKey = process.env.API_KEY;
-  const range = 'Заявки!B8:C50';
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const credentialsPath = path.join(__dirname, '..', 'secrets', 'zaqvki-8d41b171a08f.json');
 
   try {
-    const response = await fetch(url);
-    const data = await response.json();
-    const rows = data.values || [];
+    const auth = new google.auth.GoogleAuth({
+      keyFile: credentialsPath,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
+    });
 
-    const inputName = name?.trim().toLowerCase() || '';
-    const inputEmail = email?.trim().toLowerCase() || '';
-    const match = rows.find(row => row[0]?.trim().toLowerCase() === inputName);
+    const sheets = google.sheets({ version: 'v4', auth });
+    const sheetId = process.env.SHEET_ID;
 
-    if (match && match[1]?.trim().toLowerCase() === inputEmail) {
-      return res.status(200).json({ success: true });
+    const data = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Заявки!B8:C50'
+    });
+
+    const rows = data.data.values || [];
+    const inputName = name.trim().toLowerCase();
+    const inputEmail = email.trim().toLowerCase();
+
+    const match = rows.find(row =>
+      row[0]?.trim().toLowerCase() === inputName &&
+      row[1]?.trim().toLowerCase() === inputEmail
+    );
+
+    if (match) {
+      return res.status(200).json({ success: true, name: match[0] });
     } else {
-      return res.status(200).json({ success: false, error: 'Грешни данни. Моля, опитайте отново!' });
+      return res.status(401).json({ error: 'Невалидно име или имейл' });
     }
-
   } catch (err) {
-    console.error('Login error:', err);
-    return res.status(500).json({ error: 'Вътрешна грешка' });
+    console.error('checkLogin error:', err);
+    return res.status(500).json({ error: 'Вътрешна грешка при удостоверяване' });
   }
 }
