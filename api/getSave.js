@@ -9,7 +9,6 @@ export default async function (req, res) {
 
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const credentialsPath = path.join(__dirname, '..', 'secrets', 'zaqvki-8d41b171a08f.json');
 
   const { name, calendarSelections } = req.body;
 
@@ -18,16 +17,16 @@ export default async function (req, res) {
   }
 
   try {
-    // Зареждаме service account credentials
     const auth = new google.auth.GoogleAuth({
-      keyFile: credentialsPath,
+      ...(process.env.GOOGLE_CREDENTIALS
+        ? { credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS) }
+        : { keyFile: path.join(__dirname, '..', 'secrets', 'zaqvki-8d41b171a08f.json') }),
       scopes: ['https://www.googleapis.com/auth/spreadsheets']
     });
 
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
-    // 1. Проверка дали да се записва всичко (Месец!P3)
     const p3Res = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Месец!P3'
@@ -35,7 +34,6 @@ export default async function (req, res) {
 
     const saveAll = (p3Res.data.values?.[0]?.[0]?.toLowerCase() === 'true');
 
-    // 2. Намираме реда с името (в Заявки!B8:B50)
     const namesRes = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Заявки!B8:B50'
@@ -51,7 +49,6 @@ export default async function (req, res) {
 
     const sheetRow = 8 + rowIndex;
 
-    // 3. Подготовка на стойностите
     const values = [];
     for (let day = 1; day <= 31; day++) {
       const val = calendarSelections[day];
@@ -68,7 +65,6 @@ export default async function (req, res) {
       }
     }
 
-    // 4. Запис в диапазона L:AP
     const updateRes = await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
       range: `Заявки!L${sheetRow}:AP${sheetRow}`,

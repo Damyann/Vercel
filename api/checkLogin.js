@@ -13,13 +13,14 @@ export default async function (req, res) {
     return res.status(400).json({ error: 'Липсва име или имейл' });
   }
 
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const credentialsPath = path.join(__dirname, '..', 'secrets', 'zaqvki-8d41b171a08f.json');
-
   try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
     const auth = new google.auth.GoogleAuth({
-      keyFile: credentialsPath,
+      ...(process.env.GOOGLE_CREDENTIALS
+        ? { credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS) }
+        : { keyFile: path.join(__dirname, '..', 'secrets', 'zaqvki-8d41b171a08f.json') }),
       scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
     });
 

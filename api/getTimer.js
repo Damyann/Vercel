@@ -8,13 +8,14 @@ export default async function (req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const credentialsPath = path.join(__dirname, '..', 'secrets', 'zaqvki-8d41b171a08f.json');
-
   try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
     const auth = new google.auth.GoogleAuth({
-      keyFile: credentialsPath,
+      ...(process.env.GOOGLE_CREDENTIALS
+        ? { credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS) }
+        : { keyFile: path.join(__dirname, '..', 'secrets', 'zaqvki-8d41b171a08f.json') }),
       scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
     });
 
@@ -27,10 +28,7 @@ export default async function (req, res) {
     });
 
     const [startStr, endStr] = timerData.data.values?.[0] || [];
-
     const zone = 'Europe/Sofia';
-
-    // ⬇️ Поддържаме формат MM/DD/YYYY
     const start = DateTime.fromFormat(startStr, 'M/d/yyyy', { zone });
     const end = DateTime.fromFormat(endStr, 'M/d/yyyy', { zone });
     const now = DateTime.now().setZone(zone);
