@@ -177,9 +177,9 @@
 }
 
 .calendar-cell.weekend {
-  background-color: #2d3d63; /* по-светъл, неоново-син нюанс */
+  background-color: #2d3d63; 
   color: #8afff1;
-  box-shadow: inset 0 0 12px rgba(138, 255, 241, 0.3); /* подсилено сияние */
+  box-shadow: inset 0 0 12px rgba(138, 255, 241, 0.3); 
 }
 
 .calendar-cell.weekend .calendar-day-number {
