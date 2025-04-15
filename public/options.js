@@ -1,11 +1,9 @@
-// Функция за създаване на колоните с опции
 import { renderCalendar } from './calendar.js';
 
 let isPanelTransitioning = false;
 
 function createOptionColumn(title, optionValues, group) {
   let html = `<div class="option-column"><h3>${title}</h3><div class="option-list">`;
-
   for (const opt of optionValues) {
     const id = `${group}-${opt}`;
     html += `
@@ -13,14 +11,12 @@ function createOptionColumn(title, optionValues, group) {
       <label for="${id}">${opt}</label>
     `;
   }
-
   html += '</div></div>';
   return html;
 }
 
 export async function showWorkPreferencesPanel(userName) {
   if (document.getElementById('work-preferences-panel') || isPanelTransitioning) return;
-
   isPanelTransitioning = true;
 
   const response = await fetch('/api/getOptions');
@@ -99,7 +95,6 @@ export async function showWorkPreferencesPanel(userName) {
           .then(res => res.json())
           .then(calendarData => {
             sessionStorage.setItem('calendarData', JSON.stringify(calendarData));
-
             const calendarContainer = document.createElement('div');
             calendarContainer.id = 'calendar';
             calendarContainer.classList.add('slide-in');
@@ -161,14 +156,55 @@ export async function showWorkPreferencesPanel(userName) {
         body: JSON.stringify({ name, calendarSelections })
       });
 
-      const result = await res.json();
-      if (result.success) {
-        showNotification('Успешно записано!', 'success');
-      } else {
-        showNotification(result.error || 'Грешка при запис.');
+      await res.json();
+
+      const calendarData = JSON.parse(sessionStorage.getItem('calendarData')) || {};
+      const { month = new Date().getMonth() + 1, monthName = 'Месец', disabledDays = [] } = calendarData;
+
+      const preview = document.createElement('div');
+      preview.id = 'save-calendar';
+      preview.classList.add('slide-in');
+
+      const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+      const daysInMonth = new Date(new Date().getFullYear(), month, 0).getDate();
+
+      let gridHTML = '';
+      for (let i = 1; i <= daysInMonth; i++) {
+        const value = calendarSelections[i] || '--';
+        const isRed = calendarSelections[`pin-${i}`];
+        const isLocked = disabledDays.includes(i);
+
+        gridHTML += `
+          <div class="save-calendar-cell${isRed ? ' red' : ''}${isLocked ? ' locked' : ''}">
+            <div class="day">${i}</div>
+            <div class="value">${value}</div>
+            ${isLocked ? '<span class="lock">🔒</span>' : ''}
+          </div>
+        `;
       }
-    } catch {
-      showNotification('Възникна грешка при свързване със сървъра.');
+
+      preview.innerHTML = `
+        <h2 class="calendar-greeting">${nameCapitalized}, Вие изпратихте следната заявка</h2>
+        <div class="calendar-month-banner">${monthName}</div>
+        <div class="save-calendar-grid">
+          ${gridHTML}
+        </div>
+        <div class="save-footer">
+          <button class="save-ok-button">ОК</button>
+        </div>
+      `;
+
+      container.innerHTML = '';
+      container.appendChild(preview);
+
+      const okButton = preview.querySelector('.save-ok-button');
+      okButton.addEventListener('click', () => {
+        preview.remove();
+        location.reload();
+      });
+    } catch (err) {
+      console.error('Save error:', err);
+      showNotification('Възникна грешка при свързване със сървъра.', 'error');
     }
 
     isPanelTransitioning = false;

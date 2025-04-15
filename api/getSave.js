@@ -35,9 +35,7 @@ export default async function (req, res) {
     const sheetId = process.env.SHEET_ID;
 
     const spreadsheetMeta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-    const targetSheet = spreadsheetMeta.data.sheets.find(
-      sheet => sheet.properties.title === 'Заявки'
-    );
+    const targetSheet = spreadsheetMeta.data.sheets.find(sheet => sheet.properties.title === 'Заявки');
     if (!targetSheet) throw new Error('Лист „Заявки“ не е намерен!');
     const realSheetId = targetSheet.properties.sheetId;
 
@@ -110,7 +108,6 @@ export default async function (req, res) {
       }
     }
 
-    // Записваме данните за дните
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
       range: `Заявки!L${sheetRow}:AP${sheetRow}`,
@@ -118,14 +115,13 @@ export default async function (req, res) {
       requestBody: { values: [values] }
     });
 
-    // Допълнителни записи в D, F, H, J
     const extras = [
       calendarSelections.nightCount || '',
-      '', // E - празно
+      '', // празно за E
       calendarSelections.shiftType || '',
-      '', // G - празно
+      '', // празно за G
       calendarSelections.extraShift || '',
-      '', // I - празно
+      '', // празно за I
       DateTime.now().setZone('Europe/Sofia').toFormat('yyyy-MM-dd')
     ];
 
@@ -145,6 +141,7 @@ export default async function (req, res) {
 
     return res.status(200).json({ success: true });
   } catch (err) {
+    console.error('getSave error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

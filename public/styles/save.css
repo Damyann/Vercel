@@ -1,0 +1,175 @@
+/* === СТИЛ ЗА КАЛЕНДАР ПАНЕЛ СЪС ЗАЯВКА === */
+
+#save-calendar {
+    width: 742px;
+    margin: 20px auto 0;
+    padding: 10px;
+    background: linear-gradient(145deg, #1e2235, #131722);
+    border: 2px solid #8afff1;
+    border-radius: 30px;
+    box-shadow: 0 0 8px #8afff188;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  
+  #save-calendar * {
+    box-sizing: border-box;
+  }
+  
+  .calendar-greeting {
+    font-size: 28px;
+    font-weight: bold;
+    color: #8afff1;
+    margin-bottom: 0;
+    margin-top: 0;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+  }
+  
+  .calendar-month-banner {
+    font-size: 25px;
+    font-weight: bold;
+    color: #8afff1;
+    padding: 10px;
+    margin-top: 10px;
+  }
+  
+  .save-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 100px);
+    grid-auto-rows: 135px;
+    gap: 5px;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 0 3px;
+    max-width: 100%;
+  }
+  
+  .save-calendar-cell {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    background-color: #1a1f2e;
+    border: 1.5px solid #8afff1;
+    border-radius: 16px;
+    font-size: 16px;
+    color: #8afff1;
+    box-shadow: 0 0 4px #8afff133;
+    transition: 0.3s ease;
+    position: relative;
+  }
+  
+  .save-calendar-cell.red {
+    color: #ff3366;
+    border-color: #ff3366;
+    box-shadow: 0 0 6px #ff3366aa;
+  }
+  
+  .save-calendar-cell.locked {
+    opacity: 0.85;
+    pointer-events: none;
+  }
+  
+  .save-calendar-cell.locked .lock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -40%);
+    font-size: 45px;
+    color: #999;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  .save-calendar-cell .day {
+    font-size: 23px;
+    font-weight: bold;
+    margin-top: 2px;
+  }
+  
+  .save-calendar-cell .value {
+    font-size: 20px;
+    font-weight: bold;
+    color: inherit;
+  }
+  
+  .save-footer {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .save-ok-button {
+    background-color: #8afff1;
+    color: #111;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 0 6px #8afff199;
+    transition: 0.3s;
+  }
+  
+  .save-ok-button:hover {
+    background-color: #6ee7e1;
+    box-shadow: 0 0 10px #8afff166;
+  }
+  
+  /* === МОБИЛНА ВЕРСИЯ === */
+  
+  @media (max-width: 1024px) {
+    #save-calendar {
+      width: calc(100% - 4px);
+      max-width: 780px;
+      margin: 1vh auto 0;
+      padding: 1vh 3px;
+      border: 2px solid #8afff1;
+      border-radius: 2vw;
+      box-shadow: 0 0 1.5vw #8afff188;
+    }
+  
+    .calendar-greeting {
+      font-size: 5vw;
+      margin-bottom: 0;
+    }
+  
+    .calendar-month-banner {
+      font-size: 5vw;
+      padding: 1vh 3vw;
+    }
+  
+    .save-calendar-grid {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      grid-auto-rows: 12.5vh;
+      column-gap: 4px;
+      row-gap: 5px;
+      justify-content: stretch;
+      padding: 0 3px;
+    }
+  
+    .save-calendar-cell {
+      font-size: 4vw;
+      gap: 5px;
+    }
+  
+    .save-calendar-cell .day {
+      font-size: 4vw;
+      margin-top: 0.5vh;
+    }
+  
+    .save-calendar-cell .value {
+      font-size: 4vw;
+    }
+  
+    .save-calendar-cell.locked .lock {
+      font-size: 6vw;
+    }
+  
+    .save-ok-button {
+      font-size: 4vw;
+      padding: 1.2vh 2vw;
+    }
+  }
+  
