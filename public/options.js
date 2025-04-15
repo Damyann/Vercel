@@ -18,11 +18,8 @@ function createOptionColumn(title, optionValues, group) {
   return html;
 }
 
-// Главната функция за показване на панела с опции
 export async function showWorkPreferencesPanel(userName) {
-  if (document.getElementById('work-preferences-panel') || isPanelTransitioning) {
-    return;
-  }
+  if (document.getElementById('work-preferences-panel') || isPanelTransitioning) return;
 
   isPanelTransitioning = true;
 
@@ -79,7 +76,6 @@ export async function showWorkPreferencesPanel(userName) {
 
       if (cachedCalendarData) {
         const calendarData = JSON.parse(cachedCalendarData);
-
         const calendarContainer = document.createElement('div');
         calendarContainer.id = 'calendar';
         calendarContainer.classList.add('slide-in');
@@ -100,10 +96,7 @@ export async function showWorkPreferencesPanel(userName) {
         sessionStorage.setItem('selectedOptions', JSON.stringify(selectedOptions));
       } else {
         fetch('/api/getCalendar')
-          .then(res => {
-            if (!res.ok) throw new Error('Network response was not ok');
-            return res.json();
-          })
+          .then(res => res.json())
           .then(calendarData => {
             sessionStorage.setItem('calendarData', JSON.stringify(calendarData));
 
@@ -126,10 +119,7 @@ export async function showWorkPreferencesPanel(userName) {
 
             sessionStorage.setItem('selectedOptions', JSON.stringify(selectedOptions));
           })
-          .catch(error => {
-            console.error('Error:', error);
-            showNotification('Възникна грешка при зареждането на календара.');
-          });
+          .catch(() => showNotification('Възникна грешка при зареждането на календара.'));
       }
 
       isPanelTransitioning = false;
@@ -143,9 +133,21 @@ export async function showWorkPreferencesPanel(userName) {
     if (isPanelTransitioning) return;
     isPanelTransitioning = true;
 
-    const calendarSelections = JSON.parse(sessionStorage.getItem('calendarSelections') || '{}');
-    const name = localStorage.getItem('userName');
+    const nightSelected = document.querySelector('input[name="night"]:checked');
+    const shiftSelected = document.querySelector('input[name="shift"]:checked');
 
+    if (!nightSelected || !shiftSelected) {
+      showNotification('Моля изберете Брой нощни и Вид смени преди да продължите.', 'error');
+      isPanelTransitioning = false;
+      return;
+    }
+
+    const calendarSelections = JSON.parse(sessionStorage.getItem('calendarSelections') || '{}');
+    calendarSelections.nightCount = nightSelected.value;
+    calendarSelections.shiftType = shiftSelected.value;
+    calendarSelections.extraShift = document.querySelector('input[name="extra"]:checked')?.value || '';
+
+    const name = localStorage.getItem('userName');
     if (!name) {
       showNotification('Липсва потребителско име. Опитайте отново.');
       isPanelTransitioning = false;
@@ -165,8 +167,7 @@ export async function showWorkPreferencesPanel(userName) {
       } else {
         showNotification(result.error || 'Грешка при запис.');
       }
-    } catch (err) {
-      console.error('save error:', err);
+    } catch {
       showNotification('Възникна грешка при свързване със сървъра.');
     }
 
