@@ -159,7 +159,6 @@ export function renderCalendar(year, month, userName, monthName, options, weight
   container.appendChild(grid);
   document.querySelector('.main-content').appendChild(container);
 
-  // Актуализираме панела със сметките веднага след възстановяване на календара
   updateSummary(weights, userName);
 
   init(weights, userName);
@@ -215,7 +214,6 @@ function renderSummary(summary, userName) {
     <div><button class="submit-button">Продължи</button></div>
   `;
 
-  // Импортираме showWorkPreferencesPanel само когато е нужен
   import('./options.js').then(({ showWorkPreferencesPanel }) => {
     panel.querySelector('.submit-button').addEventListener('click', () => {
       showWorkPreferencesPanel(userName);
