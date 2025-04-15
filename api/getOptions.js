@@ -11,10 +11,16 @@ export default async function (req, res) {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
 
+    const credentials = process.env.GOOGLE_CREDENTIALS_BASE64
+      ? JSON.parse(Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf8'))
+      : JSON.parse(
+          await import('fs').then(fs =>
+            fs.promises.readFile(new URL('../secrets/zaqvki-8d41b171a08f.json', import.meta.url), 'utf8')
+          )
+        );
+
     const auth = new google.auth.GoogleAuth({
-      ...(process.env.GOOGLE_CREDENTIALS
-        ? { credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS) }
-        : { keyFile: path.join(__dirname, '..', 'secrets', 'zaqvki-8d41b171a08f.json') }),
+      credentials,
       scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
     });
 
@@ -36,6 +42,7 @@ export default async function (req, res) {
       shiftTypes,
       extraEnabled
     });
+
   } catch (err) {
     console.error('getOptions error:', err);
     return res.status(500).json({ error: 'Internal server error' });
