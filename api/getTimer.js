@@ -13,9 +13,9 @@ export default async function (req, res) {
     const __dirname = path.dirname(__filename);
 
     const auth = new google.auth.GoogleAuth({
-      ...(process.env.GOOGLE_CREDENTIALS
-        ? { credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS) }
-        : { keyFile: path.join(__dirname, '..', 'secrets', 'zaqvki-8d41b171a08f.json') }),
+      credentials: JSON.parse(
+        Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf8')
+      ),
       scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
     });
 
@@ -48,4 +48,4 @@ export default async function (req, res) {
     console.error('getTimer error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
-}
+} 
