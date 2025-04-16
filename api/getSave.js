@@ -65,14 +65,15 @@ export default async function (req, res) {
       const pinned = calendarSelections[`pin-${day}`];
       const colIndex = 11 + day - 1;
 
+      const hasValue = val?.trim() !== '';
       let shouldSave = false;
       let useRed = false;
 
       if (saveAll) {
         shouldSave = true;
-        useRed = !!pinned;
+        useRed = pinned && hasValue;
       } else {
-        if (pinned) {
+        if (pinned && hasValue) {
           shouldSave = true;
           useRed = true;
         } else if (val && val.toUpperCase() === 'PH') {
