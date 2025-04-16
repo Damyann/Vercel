@@ -56,19 +56,22 @@
   color: #00ffff88;
 }
 
-/* Стилове за бутона Вход */
 .submit-button {
   background-color: #00ffff;
   color: #111;
   border: none;
-  border-radius: 5vh;
-  padding: 1.2vh 2vh;
+  border-radius: 50px;
   font-weight: bold;
   font-size: 2.1vh;
   cursor: pointer;
   box-shadow: 0 0 1.2vh #00ffffaa;
-  transition: 0.3s;
+  transition: all 0.3s ease;
   margin-bottom: 2vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 60px;
 }
 
 .submit-button:hover {
@@ -77,25 +80,26 @@
 }
 
 .submit-button.loading {
+  pointer-events: none;
   position: relative;
+  overflow: visible; /* позволяваме гифчето да прелее */
+}
+
+
+.walking-icon {
+  width: 75px; 
+  height: 75px;
+  background-image: url('/images/walking.gif');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scaleX(-1);
   pointer-events: none;
 }
 
-.submit-button.loading::after {
-  content: '';
-  position: absolute;
-  display: inline-block;
-  width: 0;
-  animation: loadingDots 1.5s infinite;
-}
-
-@keyframes loadingDots {
-  0% { content: ''; }
-  25% { content: '.'; }
-  50% { content: '..'; }
-  75% { content: '...'; }
-  100% { content: ''; }
-}
 
 @media (max-width: 1024px) {
   .login-form {
@@ -124,5 +128,19 @@
 
   .form-layout {
     padding-top: 1.5vh;
+  }
+
+  .walking-icon {
+    width: 64px;
+    height: 64px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scaleX(-1);
+    background-image: url('/images/walking.gif');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events: none;
   }
 }

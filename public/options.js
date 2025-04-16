@@ -175,7 +175,9 @@ export async function showWorkPreferencesPanel(userName) {
       let gridHTML = '';
       for (let i = 1; i <= daysInMonth; i++) {
         const value = calendarSelections[i] || '--';
-        const isRed = calendarSelections[`pin-${i}`];
+        const isPinned = calendarSelections[`pin-${i}`];
+        const hasValue = value !== '--';
+        const isRed = isPinned && hasValue;
         const isLocked = disabledDays.includes(i);
 
         const date = new Date(new Date().getFullYear(), month - 1, i);
@@ -189,23 +191,51 @@ export async function showWorkPreferencesPanel(userName) {
           </div>
         `;
       }
+// ... (началото на файла остава непроменено)
 
-      preview.innerHTML = `
-        <h2 class="calendar-greeting">${nameCapitalized}, Вие изпратихте следната заявка</h2>
-        <div class="calendar-month-banner">
-          <span class="calendar-month-name">${monthName}</span>
-          <span id="calendar-limit-display" style="visibility: hidden;">&nbsp;</span>
-        </div>
-        <div class="save-calendar-grid">
-          ${gridHTML}
-        </div>
-        <div class="save-footer">
-          <button class="save-ok-button">ОК</button>
-        </div>
-      `;
+preview.innerHTML = `
+<h2 class="calendar-greeting">${nameCapitalized}, Вие изпратихте следната заявка</h2>
+<div class="calendar-month-banner">
+  <span class="calendar-month-name">${monthName}</span>
+  <span id="calendar-limit-display" style="visibility: hidden;">&nbsp;</span>
+</div>
+<div class="save-calendar-grid">
+  ${gridHTML}
+</div>
+<div class="save-footer">
+  <button class="save-ok-button">ОК</button>
+</div>
+`;
 
-      container.innerHTML = '';
-      container.appendChild(preview);
+container.innerHTML = '';
+container.appendChild(preview);
+
+// ➕ Създаваме отделен панел за опциите
+const optionsPanel = document.createElement('div');
+optionsPanel.id = 'save-options';
+optionsPanel.classList.add('save-options-panel');
+optionsPanel.innerHTML = `
+<div class="save-options-row">
+  <div class="save-options-block">
+    <div class="label">Брой нощни:</div>
+    <div class="value">${calendarSelections.nightCount || '-'}</div>
+  </div>
+  <div class="save-options-block">
+    <div class="label">Вид смени:</div>
+    <div class="value">${calendarSelections.shiftType || '-'}</div>
+  </div>
+  <div class="save-options-block">
+    <div class="label">Екстра смени:</div>
+    <div class="value">${calendarSelections.extraShift || '-'}</div>
+  </div>
+</div>
+`;
+
+container.appendChild(optionsPanel);
+
+// ... (остатъкът от файла си остава същият)
+
+
 
       const okButton = preview.querySelector('.save-ok-button');
       okButton.addEventListener('click', () => {

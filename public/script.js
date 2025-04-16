@@ -3,6 +3,39 @@ import { showWorkPreferencesPanel } from './options.js';
 
 sessionStorage.clear();
 
+// 📥 Предварително зареждаме ВСИЧКИ нужни данни от Google Sheets
+const preloadData = {
+  calendar: null,
+  options: null,
+  timer: null
+};
+
+const preloadPromises = [
+  fetch('/api/getCalendar')
+    .then(res => res.json())
+    .then(data => {
+      preloadData.calendar = data;
+      sessionStorage.setItem('calendarData', JSON.stringify(data));
+    })
+    .catch(err => console.warn('⚠️ Грешка при зареждане на календара:', err)),
+
+  fetch('/api/getOptions')
+    .then(res => res.json())
+    .then(data => {
+      preloadData.options = data;
+      sessionStorage.setItem('optionsData', JSON.stringify(data));
+    })
+    .catch(err => console.warn('⚠️ Грешка при зареждане на опциите:', err)),
+
+  fetch('/api/getTimer')
+    .then(res => res.json())
+    .then(data => {
+      preloadData.timer = data;
+      sessionStorage.setItem('timerData', JSON.stringify(data));
+    })
+    .catch(err => console.warn('⚠️ Грешка при зареждане на таймера:', err))
+];
+
 const form = document.getElementById('loginForm');
 const notification = document.getElementById('notification');
 
@@ -18,8 +51,8 @@ form.addEventListener('submit', async (e) => {
   }
 
   const submitButton = form.querySelector('.submit-button');
-  const originalButtonText = submitButton.textContent;
-  submitButton.textContent = 'Вписване...';
+  const originalButtonHTML = submitButton.innerHTML;
+  submitButton.innerHTML = '<div class="walking-icon"></div>';
   submitButton.classList.add('loading');
 
   const name = document.getElementById('name').value.trim();
@@ -36,38 +69,45 @@ form.addEventListener('submit', async (e) => {
 
     if (response.ok && result.success) {
       localStorage.setItem('userName', result.name);
-      form.style.display = 'none';
 
-      const existingCalendar = document.getElementById('calendar');
-      if (existingCalendar) existingCalendar.remove();
+      // 🕒 Изчакваме ВСИЧКИ preload заявки да са завършили
+      await Promise.all(preloadPromises);
 
-      const res = await fetch('/api/getCalendar');
-      const calendarData = await res.json();
+      const calendarData = preloadData.calendar || JSON.parse(sessionStorage.getItem('calendarData'));
 
-      if (res.ok) {
-        sessionStorage.setItem('calendarData', JSON.stringify(calendarData));
-        renderCalendar(
-          calendarData.year,
-          calendarData.month,
-          result.name,
-          calendarData.monthName,
-          calendarData.options,
-          calendarData.weights,
-          calendarData.pinLimit,
-          calendarData.pinLimitEnabled,
-          calendarData.disabledDays || []
-        );
-      } else if (calendarData.error) {
-        showNotification(calendarData.error);
+      if (calendarData && calendarData.year && calendarData.month) {
+        const existingCalendar = document.getElementById('calendar');
+        if (existingCalendar) existingCalendar.remove();
+
+        setTimeout(() => {
+          form.style.display = 'none';
+          renderCalendar(
+            calendarData.year,
+            calendarData.month,
+            result.name,
+            calendarData.monthName,
+            calendarData.options,
+            calendarData.weights,
+            calendarData.pinLimit,
+            calendarData.pinLimitEnabled,
+            calendarData.disabledDays || []
+          );
+        }, 1500);
+        
+      } else {
+        showNotification('Грешка при зареждането на календара.');
+        submitButton.innerHTML = originalButtonHTML;
+        submitButton.classList.remove('loading');
       }
     } else if (result.error) {
       showNotification(result.error);
-      submitButton.textContent = originalButtonText;
+      submitButton.innerHTML = originalButtonHTML;
       submitButton.classList.remove('loading');
     }
-  } catch {
+  } catch (err) {
+    console.error('Login error:', err);
     showNotification('Възникна грешка при изпращането.');
-    submitButton.textContent = originalButtonText;
+    submitButton.innerHTML = originalButtonHTML;
     submitButton.classList.remove('loading');
   }
 });
