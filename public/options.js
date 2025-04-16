@@ -94,7 +94,10 @@ export async function showWorkPreferencesPanel(userName) {
         fetch('/api/getCalendar')
           .then(res => res.json())
           .then(calendarData => {
-            sessionStorage.setItem('calendarData', JSON.stringify(calendarData));
+            sessionStorage.setItem('calendarData', JSON.stringify({
+              ...calendarData,
+              disabledDays: calendarData.disabledDays || []
+            }));
             const calendarContainer = document.createElement('div');
             calendarContainer.id = 'calendar';
             calendarContainer.classList.add('slide-in');
@@ -159,13 +162,14 @@ export async function showWorkPreferencesPanel(userName) {
       await res.json();
 
       const calendarData = JSON.parse(sessionStorage.getItem('calendarData')) || {};
-      const { month = new Date().getMonth() + 1, monthName = 'Месец', disabledDays = [] } = calendarData;
+      const { monthName = '–', disabledDays = [] } = calendarData;
 
       const preview = document.createElement('div');
       preview.id = 'save-calendar';
       preview.classList.add('slide-in');
 
       const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+      const month = calendarData.month || new Date().getMonth() + 1;
       const daysInMonth = new Date(new Date().getFullYear(), month, 0).getDate();
 
       let gridHTML = '';
@@ -174,8 +178,11 @@ export async function showWorkPreferencesPanel(userName) {
         const isRed = calendarSelections[`pin-${i}`];
         const isLocked = disabledDays.includes(i);
 
+        const date = new Date(new Date().getFullYear(), month - 1, i);
+        const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+
         gridHTML += `
-          <div class="save-calendar-cell${isRed ? ' red' : ''}${isLocked ? ' locked' : ''}">
+          <div class="save-calendar-cell${isRed ? ' red' : ''}${isLocked ? ' locked' : ''}${isWeekend ? ' weekend' : ''}">
             <div class="day">${i}</div>
             <div class="value">${value}</div>
             ${isLocked ? '<span class="lock">🔒</span>' : ''}
@@ -185,7 +192,10 @@ export async function showWorkPreferencesPanel(userName) {
 
       preview.innerHTML = `
         <h2 class="calendar-greeting">${nameCapitalized}, Вие изпратихте следната заявка</h2>
-        <div class="calendar-month-banner">${monthName}</div>
+        <div class="calendar-month-banner">
+          <span class="calendar-month-name">${monthName}</span>
+          <span id="calendar-limit-display" style="visibility: hidden;">&nbsp;</span>
+        </div>
         <div class="save-calendar-grid">
           ${gridHTML}
         </div>

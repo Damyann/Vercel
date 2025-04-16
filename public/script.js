@@ -1,7 +1,6 @@
 import { renderCalendar } from './calendar.js';
 import { showWorkPreferencesPanel } from './options.js';
 
-// Изчистваме sessionStorage при зареждане на страницата
 sessionStorage.clear();
 
 const form = document.getElementById('loginForm');
@@ -36,9 +35,7 @@ form.addEventListener('submit', async (e) => {
     const result = await response.json();
 
     if (response.ok && result.success) {
-      // ⬇️ Запазваме точното име от таблицата
       localStorage.setItem('userName', result.name);
-
       form.style.display = 'none';
 
       const existingCalendar = document.getElementById('calendar');
@@ -48,10 +45,11 @@ form.addEventListener('submit', async (e) => {
       const calendarData = await res.json();
 
       if (res.ok) {
+        sessionStorage.setItem('calendarData', JSON.stringify(calendarData));
         renderCalendar(
           calendarData.year,
           calendarData.month,
-          result.name, // ⬅️ използваме името от таблицата
+          result.name,
           calendarData.monthName,
           calendarData.options,
           calendarData.weights,
