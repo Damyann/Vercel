@@ -65,20 +65,21 @@ export default async function (req, res) {
       const pinned = calendarSelections[`pin-${day}`];
       const colIndex = 11 + day - 1;
 
-      const hasValue = val?.trim() !== '';
+      const hasValue = typeof val === 'string' && val.trim() !== ''; // Проверка за стойност
       let shouldSave = false;
       let useRed = false;
 
+      // Проверка за пиннати дни и стойности
       if (saveAll) {
         shouldSave = true;
-        useRed = pinned && hasValue;
+        useRed = pinned && hasValue; // Поставяме червено, само ако е пиннато и има стойност
       } else {
         if (pinned && hasValue) {
           shouldSave = true;
-          useRed = true;
-        } else if (val && val.toUpperCase() === 'PH') {
+          useRed = true; // Червено, ако е пиннато и има стойност
+        } else if (hasValue && val.toUpperCase() === 'PH') {
           shouldSave = true;
-          useRed = false;
+          useRed = false; // Ако е "PH", не е червено
         }
       }
 
@@ -98,8 +99,8 @@ export default async function (req, res) {
               userEnteredFormat: {
                 textFormat: {
                   foregroundColor: useRed
-                    ? { red: 1, green: 0, blue: 0 }
-                    : { red: 0, green: 0, blue: 0 }
+                    ? { red: 1, green: 0, blue: 0 } // Червен за пиннато
+                    : { red: 0, green: 0, blue: 0 } // Черен за непиннато
                 }
               }
             },

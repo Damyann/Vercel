@@ -27,14 +27,28 @@ export default async function (req, res) {
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
+    // Четем стойностите от ред 2 и ред 3 (активни опции)
     const [nightData, shiftData, extraData] = await Promise.all([
       sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Месец!E2:I3' }),
       sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Месец!J2:M3' }),
       sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Месец!N3' })
     ]);
 
-    const nightCounts = nightData.data.values?.[0]?.filter(Boolean) || [];
-    const shiftTypes = shiftData.data.values?.[0]?.filter(Boolean) || [];
+    // Обработка на Брой нощни смени (ред 2 и ред 3)
+    const nightLabels = nightData.data.values?.[0] || [];
+    const nightActives = nightData.data.values?.[1] || [];
+    const nightCounts = nightLabels.filter((label, i) =>
+      label && nightActives[i]?.toLowerCase() === 'true'
+    );
+
+    // Обработка на Вид смени (ред 2 и ред 3)
+    const shiftLabels = shiftData.data.values?.[0] || [];
+    const shiftActives = shiftData.data.values?.[1] || [];
+    const shiftTypes = shiftLabels.filter((label, i) =>
+      label && shiftActives[i]?.toLowerCase() === 'true'
+    );
+
+    // Флаг за екстра смени (стойност от N3)
     const extraEnabled = extraData.data.values?.[0]?.[0]?.toLowerCase() === 'true';
 
     return res.status(200).json({
