@@ -1,11 +1,5 @@
-/**
- * Рендира месечния performance‑календар
- * – взема данни от /api/getPerformance
- * – показва златен, сребърен или без медал според ранга
- */
 export async function renderPerformanceCalendar() {
   try {
-    /* ─────────────────── API заявка ─────────────────── */
     const res = await fetch('/api/getPerformance', {
       headers: {
         'x-user-name': localStorage.getItem('userName') || '',
@@ -18,21 +12,18 @@ export async function renderPerformanceCalendar() {
       return;
     }
 
-    const { monthName, daysInMonth, score, medalType } = data;
+    const { monthName, daysInMonth, score, medalType, finalScore, dailyValues } = data;
 
-    /* ────────────────── Подготовка на DOM ────────────────── */
     const container = document.querySelector('.main-content');
     container.innerHTML = '';
 
     const wrapper = document.createElement('div');
     wrapper.id = 'performance-calendar';
 
-    /* Заглавие */
     const heading = document.createElement('h2');
     heading.className = 'performance-greeting';
     heading.textContent = 'Performance';
 
-    /* Банер с месец + точки */
     const banner = document.createElement('div');
     banner.className = 'performance-month-banner';
 
@@ -43,27 +34,25 @@ export async function renderPerformanceCalendar() {
     const scoreEl = document.createElement('span');
     scoreEl.className = 'performance-score-badge';
 
-    /* ───── Медал според класа ───── */
     let medalSrc = '';
-    if (medalType === 'gold') {
-      medalSrc = '/images/golden-medal.svg';
-    } else if (medalType === 'silver') {
-      medalSrc = '/images/silver-medal.svg';
-    }
+    if (medalType === 'gold') medalSrc = '/images/golden-medal.svg';
+    else if (medalType === 'silver') medalSrc = '/images/silver-medal.svg';
 
     if (medalSrc) {
       scoreEl.innerHTML =
-        `<img src="${medalSrc}" alt="Медал" class="medal-icon"> ` +
-        `${score ?? ''} т.`;
+        `<img src="${medalSrc}" alt="Медал" class="medal-icon"> ${score ?? ''} т.`;
     } else {
       scoreEl.textContent = `${score ?? ''} т.`;
     }
 
-    /* Сглобяване на банера */
+    const adjustedEl = document.createElement('span');
+    adjustedEl.className = 'performance-score-badge';
+    adjustedEl.textContent = `${Math.round(finalScore)} лв`;
+
     banner.appendChild(monthEl);
     banner.appendChild(scoreEl);
+    banner.appendChild(adjustedEl);
 
-    /* Календарна решетка */
     const grid = document.createElement('div');
     grid.className = 'performance-grid';
 
@@ -75,11 +64,16 @@ export async function renderPerformanceCalendar() {
       number.className = 'performance-day-number';
       number.textContent = d;
 
+      const dataEl = document.createElement('div');
+      dataEl.className = 'performance-day-data';
+      const rawValue = dailyValues?.[d - 1];
+      dataEl.textContent = rawValue && rawValue !== '' ? rawValue : '--';
+
       cell.appendChild(number);
+      cell.appendChild(dataEl);
       grid.appendChild(cell);
     }
 
-    /* Финален рендер */
     wrapper.appendChild(heading);
     wrapper.appendChild(banner);
     wrapper.appendChild(grid);

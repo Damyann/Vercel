@@ -167,6 +167,15 @@
   margin-right: 6px;
 }
 
+.performance-day-data {
+  margin-top: 4px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffe68a;
+  text-align: center;
+}
+
+
 /* Мобилен изглед */
 @media (max-width: 1024px) {
   #performance-calendar {
