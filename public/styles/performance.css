@@ -1,0 +1,206 @@
+#performance-calendar {
+  width: 742px;
+  margin: 30px auto 0;
+  padding: 10px;
+  background: linear-gradient(145deg, #1e2235, #131722);
+  border: 2px solid #8afff1;
+  border-radius: 30px;
+  box-shadow: 0 0 8px #8afff188;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+#performance-calendar * {
+  box-sizing: border-box;
+}
+
+.performance-greeting {
+  font-size: 28px;
+  font-weight: bold;
+  color: #8afff1;
+  margin-bottom: 0;
+  margin-top: 0;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Месец и точки — един ред */
+.performance-month-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: transparent;
+  padding: 10px 16px;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+/* Месец */
+.performance-month-name {
+  position: relative;
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: inherit;
+  font-weight: bold;
+  color: #8afff1;
+  background-color: transparent;
+  text-align: center;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.performance-month-name::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  border-radius: 14px;
+  background: linear-gradient(270deg, #8afff1, #ffffff, #8afff1);
+  background-size: 400% 400%;
+  animation: animatedBorderPerformance 3s linear infinite;
+  z-index: -1;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: destination-out;
+  padding: 1px;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+}
+
+/* Точки */
+.performance-score-badge {
+  position: relative;
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: inherit;
+  font-weight: bold;
+  color: #ffe68a;
+  background-color: transparent;
+  text-align: center;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.performance-score-badge::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  border-radius: 14px;
+  background: linear-gradient(270deg, #ffe68a, #ffffff, #ffe68a);
+  background-size: 400% 400%;
+  animation: animatedBorderPerformance 3s linear infinite;
+  z-index: -1;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: destination-out;
+  padding: 1px;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+}
+
+/* Анимация за рамките */
+@keyframes animatedBorderPerformance {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 400% 50%; }
+}
+
+/* Календарна решетка */
+.performance-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 100px);
+  grid-auto-rows: 135px;
+  gap: 5px;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 0 3px;
+  max-width: 100%;
+}
+
+.performance-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: #1a1f2e;
+  border: 1.5px solid #8afff1;
+  border-radius: 16px;
+  font-size: 16px;
+  color: #8afff1;
+  box-shadow: 0 0 4px #8afff133;
+  transition: 0.3s ease;
+  font-weight: bold;
+  padding: 10px;
+  position: relative;
+}
+
+.performance-cell:hover {
+  background-color: #222837;
+  transform: scale(1.05);
+  box-shadow: 0 0 10px #8afff1aa;
+}
+
+.performance-day-number {
+  font-size: 20px;
+  font-weight: bold;
+  color: #00ffff;
+  margin-top: 4px;
+  text-align: center;
+  width: 100%;
+}
+
+/* Мобилен изглед */
+@media (max-width: 1024px) {
+  #performance-calendar {
+    width: calc(100% - 4px);
+    max-width: 780px;
+    margin: 1vh auto 0;
+    padding: 1vh 3px;
+    border-radius: 2vw;
+    box-shadow: 0 0 1.5vw #8afff188;
+  }
+
+  .performance-greeting {
+    font-size: 5vw;
+    margin-bottom: 0;
+  }
+
+  .performance-month-banner {
+    justify-content: space-between;
+    font-size: 5vw;
+    padding: 1vh 3vw;
+  }
+
+  .performance-month-name,
+  .performance-score-badge {
+    padding: 6px 12px;
+    font-size: 4.6vw;
+    border-radius: 10px;
+  }
+
+  .performance-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-auto-rows: 12.5vh;
+    column-gap: 4px;
+    row-gap: 5px;
+    justify-content: stretch;
+    padding: 0 3px;
+  }
+
+  .performance-cell {
+    font-size: 4vw;
+    padding: 1.5vh 1vw;
+  }
+
+  .performance-day-number {
+    font-size: 4vw;
+    margin-top: 1vh;
+  }
+}

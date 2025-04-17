@@ -1,0 +1,98 @@
+.afterlogin-panel {
+  width: 100%;
+  max-width: 500px;
+  margin: 1vh auto 0;
+  padding: 30px;
+  border: 2px solid #00ffff;
+  border-radius: 20px;
+  background: linear-gradient(#004746, #111111);
+  box-shadow: 0 0 16px #00ffff88;
+  color: #00ffff;
+  text-align: center;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.afterlogin-panel.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (max-width: 1024px) {
+  .afterlogin-panel {
+    width: calc(100% - 4px);
+    max-width: 780px;
+  }
+}
+
+.afterlogin-panel h2 {
+  font-size: 2.6em;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+
+.afterlogin-panel p {
+  font-size: 1.6em;
+  margin-bottom: 30px;
+}
+
+.afterlogin-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.afterlogin-buttons .btn-performance,
+.afterlogin-buttons .btn-calendar {
+  font-size: 1.1em;
+  font-weight: bold;
+  padding: 12px 28px;
+  border-radius: 12px;
+  background: transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+/* 🔹 Performance (син неон) */
+.btn-performance {
+  color: #00ffff;
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 12px #00ffff44;
+}
+
+.btn-performance:hover {
+  background-color: #00ffff22;
+  box-shadow: 0 0 16px #00ffff88;
+}
+
+/* 🟠 Заявка (оранжев неон) */
+.btn-calendar {
+  color: #ffaa33;
+  border: 2px solid #ffaa33;
+  box-shadow: 0 0 12px #ffaa3366;
+}
+
+.btn-calendar:hover {
+  background-color: #ffaa3311;
+  box-shadow: 0 0 16px #ffaa33aa;
+}
+
+.btn-calendar:disabled {
+  color: #ff4444;
+  border-color: #ff4444;
+  background-color: transparent;
+  box-shadow: 0 0 12px #ff444455;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.btn-calendar:disabled:hover {
+  background-color: #ff444422;
+  box-shadow: 0 0 16px #ff4444aa;
+}
