@@ -15,7 +15,7 @@
 }
 
 .performance-greeting {
-  font-size: 28px;
+  font-size: 36px;
   font-weight: bold;
   color: #8afff1;
   margin-bottom: 0;
@@ -72,8 +72,10 @@
 
 /* Точки */
 .performance-score-badge {
+  display: inline-flex;    /* inline-контекст + flex за вътрешно подреждане */
+  align-items: center;     /* центрира иконата и текста по вертикала */
+  justify-content: center; /* (по избор) центрира и по хоризонтала, ако трябва */
   position: relative;
-  display: inline-block;
   padding: 8px 16px;
   border-radius: 12px;
   font-size: inherit;
@@ -84,6 +86,7 @@
   z-index: 1;
   overflow: hidden;
 }
+
 
 .performance-score-badge::before {
   content: "";
@@ -156,6 +159,14 @@
   width: 100%;
 }
 
+/* public/styles/performance.css */
+.medal-icon {
+  width: 22px;     /* коригирай по вкус */
+  height: 22px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
 /* Мобилен изглед */
 @media (max-width: 1024px) {
   #performance-calendar {
@@ -168,7 +179,7 @@
   }
 
   .performance-greeting {
-    font-size: 5vw;
+    font-size: 6.5vw;
     margin-bottom: 0;
   }
 
