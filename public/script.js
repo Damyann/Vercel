@@ -1,5 +1,4 @@
 import { renderCalendar } from './calendar.js';
-import { showWorkPreferencesPanel } from './options.js';
 import { renderPerformanceCalendar } from './performance.js';
 
 const preloadData = {
@@ -32,13 +31,14 @@ form.addEventListener('submit', async (e) => {
     const result = await response.json();
 
     if (response.ok && result.token) {
+      // 🔐 Запазваме токена за после, но го използваме директно веднага
       sessionStorage.setItem('sessionToken', result.token);
 
+      // ⏱️ Зареждаме всички данни с Authorization
       const preloadPromises = [
         fetch('/api/getCalendar', {
           headers: { Authorization: `Bearer ${result.token}` }
-        })
-          .then(res => res.json())
+        }).then(res => res.json())
           .then(data => {
             preloadData.calendar = data;
             sessionStorage.setItem('calendarData', JSON.stringify(data));
@@ -46,31 +46,32 @@ form.addEventListener('submit', async (e) => {
 
         fetch('/api/getOptions', {
           headers: { Authorization: `Bearer ${result.token}` }
-        })
-          .then(res => res.json())
+        }).then(res => res.json())
           .then(data => {
             preloadData.options = data;
             sessionStorage.setItem('optionsData', JSON.stringify(data));
           }),
 
-        fetch('/api/getTimer') // 🔓 без токен
+        fetch('/api/getTimer') // 🚫 Не изисква токен
           .then(res => res.json())
           .then(data => {
             preloadData.timer = data;
             sessionStorage.setItem('timerData', JSON.stringify(data));
 
-            window.closedState = data.status === 'closed';
-
-            const el = document.getElementById('countdown-timer');
-            if (el && data.status === 'closed') {
-              el.innerHTML = data.message || 'Заявките са затворени';
-              el.classList.add('closed');
+            if (data.status === 'closed') {
+              window.closedState = true;
+              const el = document.getElementById('countdown-timer');
+              if (el) {
+                el.innerHTML = data.message || 'Заявките са затворени';
+                el.classList.add('closed');
+              }
+            } else {
+              window.closedState = false;
             }
           })
       ];
 
       await Promise.all(preloadPromises);
-
       const calendarData = preloadData.calendar || JSON.parse(sessionStorage.getItem('calendarData'));
 
       form.classList.add('slide-out');
@@ -79,15 +80,14 @@ form.addEventListener('submit', async (e) => {
         form.style.display = 'none';
         showAfterLoginPanel(calendarData);
       }, 600);
-
-    } else if (result.error) {
-      showNotification(result.error);
+    } else {
+      showNotification(result.error || 'Невалидни данни');
       submitButton.innerHTML = originalButtonHTML;
       submitButton.classList.remove('loading');
     }
   } catch (err) {
     console.error('Login error:', err);
-    showNotification('Възникна грешка при изпращането.');
+    showNotification('Грешка при вписване.');
     submitButton.innerHTML = originalButtonHTML;
     submitButton.classList.remove('loading');
   }
@@ -98,7 +98,6 @@ function showAfterLoginPanel(calendarData) {
 
   const afterBox = document.createElement('div');
   afterBox.className = 'afterlogin-panel';
-
   afterBox.innerHTML = `
     <h2>Здравей!</h2>
     <p>Какво ще желаете?</p>
@@ -107,15 +106,10 @@ function showAfterLoginPanel(calendarData) {
       <button class="btn-calendar">Заявка</button>
     </div>
   `;
-
   container.appendChild(afterBox);
-
-  requestAnimationFrame(() => {
-    afterBox.classList.add('show');
-  });
+  requestAnimationFrame(() => afterBox.classList.add('show'));
 
   const calendarBtn = afterBox.querySelector('.btn-calendar');
-
   if (window.closedState) {
     calendarBtn.disabled = true;
     calendarBtn.classList.add('disabled');
