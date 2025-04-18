@@ -1,6 +1,8 @@
 import { google } from 'googleapis';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createSession } from '../lib/sessions.js';
+import { getGoogleAuth } from '../lib/auth.js';
 
 export default async function (req, res) {
   if (req.method !== 'POST') {
@@ -14,28 +16,13 @@ export default async function (req, res) {
   }
 
   try {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-
-    const credentials = process.env.GOOGLE_CREDENTIALS_BASE64
-      ? JSON.parse(Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf8'))
-      : JSON.parse(
-          await import('fs').then(fs =>
-            fs.promises.readFile(new URL('../secrets/zaqvki-8d41b171a08f.json', import.meta.url), 'utf8')
-          )
-        );
-
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
-    });
-
+    const auth = await getGoogleAuth();
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
     const data = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Заявки!B8:C50'
+      range: 'Заявки!B8:C50',
     });
 
     const rows = data.data.values || [];
@@ -48,12 +35,13 @@ export default async function (req, res) {
     );
 
     if (match) {
-      return res.status(200).json({ success: true, name: match[0] });
+      const token = createSession(match[0]); // Записваме името вътре
+      return res.status(200).json({ success: true, token });
     } else {
       return res.status(401).json({ error: 'Невалидно име или имейл' });
     }
   } catch (err) {
-    console.error('checkLogin error:', err);
+    console.error('getCheckLogin error:', err);
     return res.status(500).json({ error: 'Вътрешна грешка при удостоверяване' });
   }
 }

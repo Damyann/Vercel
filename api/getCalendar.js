@@ -1,6 +1,8 @@
 import { google } from 'googleapis';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getGoogleAuth } from '../lib/auth.js';
+import { validateSession } from '../lib/sessions.js';
 
 const monthMap = {
   'януари': 1, 'февруари': 2, 'март': 3, 'април': 4,
@@ -13,23 +15,15 @@ export default async function (req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // 🔐 Валидираме токен
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const userName = validateSession(token);
+  if (!userName) {
+    return res.status(401).json({ error: 'Невалиден или липсващ токен' });
+  }
+
   try {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-
-    const credentials = process.env.GOOGLE_CREDENTIALS_BASE64
-      ? JSON.parse(Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf8'))
-      : JSON.parse(
-          await import('fs').then(fs =>
-            fs.promises.readFile(new URL('../secrets/zaqvki-8d41b171a08f.json', import.meta.url), 'utf8')
-          )
-        );
-
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
-    });
-
+    const auth = await getGoogleAuth();
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 

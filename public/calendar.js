@@ -1,18 +1,15 @@
-// ✅ calendar.js
+export function renderCalendar(year, month, monthName, options, weights, pinLimit, pinLimitEnabled, disabledDays = []) {
+  const token = sessionStorage.getItem('sessionToken');
 
-export function renderCalendar(year, month, userName, monthName, options, weights, pinLimit, pinLimitEnabled, disabledDays = []) {
-  // Премахваме съществуващия календар, ако има такъв
   const existingCalendar = document.getElementById('calendar');
-  if (existingCalendar) {
-    existingCalendar.remove();
-  }
+  if (existingCalendar) existingCalendar.remove();
 
   const container = document.createElement('div');
   container.id = 'calendar';
 
   const greeting = document.createElement('div');
   greeting.className = 'calendar-greeting';
-  greeting.textContent = `Здравей, ${userName.charAt(0).toUpperCase() + userName.slice(1)}. Моля, изберете датите, които са от значение за Вас.`;
+  greeting.textContent = `Моля, изберете датите, които са от значение за Вас.`;
 
   const monthBanner = document.createElement('div');
   monthBanner.className = 'calendar-month-banner';
@@ -32,8 +29,6 @@ export function renderCalendar(year, month, userName, monthName, options, weight
   const grid = document.createElement('div');
   grid.className = 'calendar-grid';
 
-  // Възстановяваме запазените опции от sessionStorage
-  const savedOptions = JSON.parse(sessionStorage.getItem('selectedOptions') || '{}');
   const savedSelections = JSON.parse(sessionStorage.getItem('calendarSelections') || '{}');
 
   const updatePinCount = () => {
@@ -71,10 +66,12 @@ export function renderCalendar(year, month, userName, monthName, options, weight
 
     const select = document.createElement('select');
     select.className = 'calendar-select';
+
     const emptyOption = document.createElement('option');
     emptyOption.value = '';
     emptyOption.textContent = '--';
     select.appendChild(emptyOption);
+
     options.forEach(optionText => {
       const option = document.createElement('option');
       option.value = optionText;
@@ -82,7 +79,6 @@ export function renderCalendar(year, month, userName, monthName, options, weight
       select.appendChild(option);
     });
 
-    // Възстановяваме запазената селекция за този ден
     if (savedSelections[d]) {
       select.value = savedSelections[d];
     }
@@ -92,7 +88,6 @@ export function renderCalendar(year, month, userName, monthName, options, weight
     pinButton.textContent = '📌';
     pinButton.dataset.pinned = 'false';
 
-    // Възстановяваме запазеното състояние на pin бутона
     if (savedSelections[`pin-${d}`]) {
       pinButton.dataset.pinned = 'true';
       pinButton.textContent = '✔';
@@ -114,38 +109,30 @@ export function renderCalendar(year, month, userName, monthName, options, weight
       pinButton.classList.toggle('pinned', !isPinned);
       cell.classList.toggle('pinned-cell', !isPinned);
 
-      // Запазваме състоянието на pin бутона
       const selections = JSON.parse(sessionStorage.getItem('calendarSelections') || '{}');
       selections[`pin-${d}`] = !isPinned;
       sessionStorage.setItem('calendarSelections', JSON.stringify(selections));
 
       updatePinCount();
-      updateSummary(weights, userName);
+      updateSummary(weights);
     });
 
     select.addEventListener('change', () => {
       const value = select.value.trim().toUpperCase();
+
       if (value === 'PH') {
         pinButton.dataset.pinned = 'false';
         pinButton.textContent = '🔒';
         pinButton.classList.remove('pinned');
         cell.classList.remove('pinned-cell');
         updatePinCount();
-      } else {
-        // Запазваме състоянието на pin бутона
-        const isPinned = pinButton.dataset.pinned === 'true';
-        if (isPinned) {
-          pinButton.textContent = '✔';
-        } else {
-          pinButton.textContent = '📌';
-        }
       }
 
-      // Запазваме избраната стойност
       const selections = JSON.parse(sessionStorage.getItem('calendarSelections') || '{}');
       selections[d] = value;
       sessionStorage.setItem('calendarSelections', JSON.stringify(selections));
-      updateSummary(weights, userName);
+
+      updateSummary(weights);
     });
 
     cell.appendChild(dayNumber);
@@ -159,9 +146,8 @@ export function renderCalendar(year, month, userName, monthName, options, weight
   container.appendChild(grid);
   document.querySelector('.main-content').appendChild(container);
 
-  updateSummary(weights, userName);
-
-  init(weights, userName);
+  updateSummary(weights);
+  init(weights);
   updatePinCount();
 }
 
@@ -171,7 +157,7 @@ function getSelectedValues() {
     .filter(v => v !== '');
 }
 
-function updateSummary(weights, userName) {
+function updateSummary(weights) {
   const selected = getSelectedValues();
 
   let shiftSum = 0, realShifts = 0, phCount = 0;
@@ -196,10 +182,10 @@ function updateSummary(weights, userName) {
   const day = selected.filter(v => ['7+15', '7+23', '7', '1', '15'].includes(v)).length;
   const vacation = selected.filter(v => ['отпуск', 'ph'].includes(v.toLowerCase())).length;
 
-  renderSummary({ shifts: shiftSum, total, night, day, vacation }, userName);
+  renderSummary({ shifts: shiftSum, total, night, day, vacation });
 }
 
-function renderSummary(summary, userName) {
+function renderSummary(summary) {
   const existing = document.getElementById('summary-panel');
   if (existing) existing.remove();
 
@@ -216,17 +202,17 @@ function renderSummary(summary, userName) {
 
   import('./options.js').then(({ showWorkPreferencesPanel }) => {
     panel.querySelector('.submit-button').addEventListener('click', () => {
-      showWorkPreferencesPanel(userName);
+      showWorkPreferencesPanel(); // ❗️ без аргумент – сървърът знае кой е
     });
   });
 
   document.querySelector('.main-content').appendChild(panel);
 }
 
-function init(weights, userName) {
+function init(weights) {
   setTimeout(() => {
     document.querySelectorAll('.calendar-select').forEach(select => {
-      select.addEventListener('change', () => updateSummary(weights, userName));
+      select.addEventListener('change', () => updateSummary(weights));
     });
   }, 50);
 }

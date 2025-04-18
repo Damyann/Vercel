@@ -15,11 +15,17 @@ function createOptionColumn(title, optionValues, group) {
   return html;
 }
 
-export async function showWorkPreferencesPanel(userName) {
+export async function showWorkPreferencesPanel() {
   if (document.getElementById('work-preferences-panel') || isPanelTransitioning) return;
   isPanelTransitioning = true;
 
-  const response = await fetch('/api/getOptions');
+  const token = sessionStorage.getItem('sessionToken');
+
+  const response = await fetch('/api/getOptions', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
   const options = await response.json();
 
   const container = document.querySelector('.main-content');
@@ -33,10 +39,8 @@ export async function showWorkPreferencesPanel(userName) {
   panel.id = 'work-preferences-panel';
   panel.classList.add('slide-in');
 
-  const nameCapitalized = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
-
   panel.innerHTML = `
-    <h2>Здравей, ${nameCapitalized}!</h2>
+    <h2>Здравей!</h2>
     <p>Моля изберете начина си на работа.</p>
     <div class="options-columns">
       ${createOptionColumn('Брой нощни:', options.nightCounts, 'night')}
@@ -80,7 +84,6 @@ export async function showWorkPreferencesPanel(userName) {
         renderCalendar(
           calendarData.year,
           calendarData.month,
-          userName,
           calendarData.monthName,
           calendarData.options,
           calendarData.weights,
@@ -90,34 +93,6 @@ export async function showWorkPreferencesPanel(userName) {
         );
 
         sessionStorage.setItem('selectedOptions', JSON.stringify(selectedOptions));
-      } else {
-        fetch('/api/getCalendar')
-          .then(res => res.json())
-          .then(calendarData => {
-            sessionStorage.setItem('calendarData', JSON.stringify({
-              ...calendarData,
-              disabledDays: calendarData.disabledDays || []
-            }));
-            const calendarContainer = document.createElement('div');
-            calendarContainer.id = 'calendar';
-            calendarContainer.classList.add('slide-in');
-            document.querySelector('.main-content').appendChild(calendarContainer);
-
-            renderCalendar(
-              calendarData.year,
-              calendarData.month,
-              userName,
-              calendarData.monthName,
-              calendarData.options,
-              calendarData.weights,
-              calendarData.pinLimit,
-              calendarData.pinLimitEnabled,
-              calendarData.disabledDays || []
-            );
-
-            sessionStorage.setItem('selectedOptions', JSON.stringify(selectedOptions));
-          })
-          .catch(() => showNotification('Възникна грешка при зареждането на календара.'));
       }
 
       isPanelTransitioning = false;
@@ -145,30 +120,22 @@ export async function showWorkPreferencesPanel(userName) {
     calendarSelections.shiftType = shiftSelected.value;
     calendarSelections.extraShift = document.querySelector('input[name="extra"]:checked')?.value || '';
 
-    const name = localStorage.getItem('userName');
-    if (!name) {
-      showNotification('Липсва потребителско име. Опитайте отново.');
-      isPanelTransitioning = false;
-      return;
-    }
+    const token = sessionStorage.getItem('sessionToken');
 
     try {
       const res = await fetch('/api/getSave', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, calendarSelections })
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ calendarSelections })
       });
 
       await res.json();
 
       const calendarData = JSON.parse(sessionStorage.getItem('calendarData')) || {};
       const { monthName = '–', disabledDays = [] } = calendarData;
-
-      const preview = document.createElement('div');
-      preview.id = 'save-calendar';
-      preview.classList.add('slide-in');
-
-      const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
       const month = calendarData.month || new Date().getMonth() + 1;
       const daysInMonth = new Date(new Date().getFullYear(), month, 0).getDate();
 
@@ -191,57 +158,54 @@ export async function showWorkPreferencesPanel(userName) {
           </div>
         `;
       }
-// ... (началото на файла остава непроменено)
 
-preview.innerHTML = `
-<h2 class="calendar-greeting">${nameCapitalized}, Вие изпратихте следната заявка</h2>
-<div class="calendar-month-banner">
-  <span class="calendar-month-name">${monthName}</span>
-  <span id="calendar-limit-display" style="visibility: hidden;">&nbsp;</span>
-</div>
-<div class="save-calendar-grid">
-  ${gridHTML}
-</div>
-<div class="save-footer">
-  <button class="save-ok-button">ОК</button>
-</div>
-`;
+      const preview = document.createElement('div');
+      preview.id = 'save-calendar';
+      preview.classList.add('slide-in');
 
-container.innerHTML = '';
-container.appendChild(preview);
+      preview.innerHTML = `
+        <h2 class="calendar-greeting">Вие изпратихте следната заявка</h2>
+        <div class="calendar-month-banner">
+          <span class="calendar-month-name">${monthName}</span>
+          <span id="calendar-limit-display" style="visibility: hidden;">&nbsp;</span>
+        </div>
+        <div class="save-calendar-grid">
+          ${gridHTML}
+        </div>
+        <div class="save-footer">
+          <button class="save-ok-button">ОК</button>
+        </div>
+      `;
 
-// ➕ Създаваме отделен панел за опциите
-const optionsPanel = document.createElement('div');
-optionsPanel.id = 'save-options';
-optionsPanel.classList.add('save-options-panel');
-optionsPanel.innerHTML = `
-<div class="save-options-row">
-  <div class="save-options-block">
-    <div class="label">Брой нощни:</div>
-    <div class="value">${calendarSelections.nightCount || '-'}</div>
-  </div>
-  <div class="save-options-block">
-    <div class="label">Вид смени:</div>
-    <div class="value">${calendarSelections.shiftType || '-'}</div>
-  </div>
-  <div class="save-options-block">
-    <div class="label">Екстра смени:</div>
-    <div class="value">${calendarSelections.extraShift || '-'}</div>
-  </div>
-</div>
-`;
+      const optionsPanel = document.createElement('div');
+      optionsPanel.id = 'save-options';
+      optionsPanel.classList.add('save-options-panel');
+      optionsPanel.innerHTML = `
+        <div class="save-options-row">
+          <div class="save-options-block">
+            <div class="label">Брой нощни:</div>
+            <div class="value">${calendarSelections.nightCount || '-'}</div>
+          </div>
+          <div class="save-options-block">
+            <div class="label">Вид смени:</div>
+            <div class="value">${calendarSelections.shiftType || '-'}</div>
+          </div>
+          <div class="save-options-block">
+            <div class="label">Екстра смени:</div>
+            <div class="value">${calendarSelections.extraShift || '-'}</div>
+          </div>
+        </div>
+      `;
 
-container.appendChild(optionsPanel);
+      container.innerHTML = '';
+      container.appendChild(preview);
+      container.appendChild(optionsPanel);
 
-// ... (остатъкът от файла си остава същият)
-
-
-
-      const okButton = preview.querySelector('.save-ok-button');
-      okButton.addEventListener('click', () => {
+      preview.querySelector('.save-ok-button').addEventListener('click', () => {
         preview.remove();
         location.reload();
       });
+
     } catch (err) {
       console.error('Save error:', err);
       showNotification('Възникна грешка при свързване със сървъра.', 'error');

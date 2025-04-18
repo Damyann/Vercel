@@ -1,29 +1,30 @@
 import { google } from 'googleapis';
+import { validateSession } from '../lib/sessions.js';
+import { getGoogleAuth } from '../lib/auth.js';
 
 export default async function (req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const userName = req.headers['x-user-name']?.trim().toLowerCase();
+  // 🔐 Валидация на токен
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const userName = validateSession(token);
   if (!userName) {
-    return res.status(400).json({ error: 'Missing user name' });
+    return res.status(401).json({ success: false, error: 'Невалиден токен' });
   }
 
   try {
-    const auth = new google.auth.GoogleAuth({
-      credentials: await getCredentials(),
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-    });
+    const auth = await getGoogleAuth();
     const client = await auth.getClient();
     const sheets = google.sheets({ version: 'v4', auth: client });
     const sheetId = process.env.SHEET_ID;
 
-    // --- Месец и година ---
     const { data: perfMeta } = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Performance!A3:B3',
     });
+
     const row = perfMeta.values?.[0] || [];
     const year = parseInt(row[0]);
     const monthName = row[1]?.trim();
@@ -36,13 +37,14 @@ export default async function (req, res) {
       'Януари','Февруари','Март','Април','Май','Юни',
       'Юли','Август','Септември','Октомври','Ноември','Декември'
     ].findIndex(m => m.toLowerCase() === monthName.toLowerCase());
+
     const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
 
-    // --- Диапазони за медали ---
     const { data: rangeData } = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Performance!B5:B6',
     });
+
     const [goldText = '', silverText = ''] = rangeData.values?.map(r => r[0]) || [];
 
     const parseRange = txt => {
@@ -54,7 +56,6 @@ export default async function (req, res) {
     const [goldStart, goldEnd] = parseRange(goldText);
     const [silverStart, silverEnd] = parseRange(silverText);
 
-    // --- Данни от Scoreboard ---
     const { data: scoreData } = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Актуален-Scoreboard!C8:U50',
@@ -86,7 +87,6 @@ export default async function (req, res) {
       medalType = 'silver';
     }
 
-    // --- A5:A6 и множител от Scoreboard!U5 ---
     const [aVals, u5Val] = await Promise.all([
       sheets.spreadsheets.values.get({
         spreadsheetId: sheetId,
@@ -109,20 +109,16 @@ export default async function (req, res) {
       finalScore += a6;
     }
 
-    // --- Дневни стойности от Актуален-Monthly (B3:BN3) ---
     const { data: monthlyData } = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Актуален-Monthly!B3:BN3',
     });
 
     let dailyValues = Array(31).fill('--');
-
     if (monthlyData?.values?.length) {
-      const matchRow = monthlyData.values[0]; // Единствения ред — ред 3
+      const matchRow = monthlyData.values[0];
 
-      // Колони: F = 4, H = 6, ..., BN = 64 (общо 31 стойности)
       const dayColumnIndexes = Array.from({ length: 31 }, (_, i) => 4 + i * 2);
-
       dailyValues = dayColumnIndexes.map(index => {
         const val = matchRow[index];
         return val?.toString().trim() || '--';
@@ -145,15 +141,4 @@ export default async function (req, res) {
     console.error('getPerformance error:', err);
     return res.status(500).json({ success: false, error: 'Грешка при зареждане.' });
   }
-}
-
-async function getCredentials() {
-  if (process.env.GOOGLE_CREDENTIALS_BASE64) {
-    const decoded = Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf8');
-    return JSON.parse(decoded);
-  }
-  const fs = await import('fs/promises');
-  const path = new URL('../secrets/zaqvki-8d41b171a08f.json', import.meta.url);
-  const json = await fs.readFile(path, 'utf8');
-  return JSON.parse(json);
 }

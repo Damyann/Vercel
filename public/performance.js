@@ -1,9 +1,11 @@
 export async function renderPerformanceCalendar() {
   try {
+    const token = sessionStorage.getItem('sessionToken');
+
     const res = await fetch('/api/getPerformance', {
       headers: {
-        'x-user-name': localStorage.getItem('userName') || '',
-      },
+        Authorization: `Bearer ${token}`
+      }
     });
 
     const data = await res.json();
@@ -39,8 +41,7 @@ export async function renderPerformanceCalendar() {
     else if (medalType === 'silver') medalSrc = '/images/silver-medal.svg';
 
     if (medalSrc) {
-      scoreEl.innerHTML =
-        `<img src="${medalSrc}" alt="Медал" class="medal-icon"> ${score ?? ''} т.`;
+      scoreEl.innerHTML = `<img src="${medalSrc}" alt="Медал" class="medal-icon"> ${score ?? ''} т.`;
     } else {
       scoreEl.textContent = `${score ?? ''} т.`;
     }

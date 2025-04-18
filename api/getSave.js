@@ -1,62 +1,76 @@
 import { google } from 'googleapis';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { DateTime } from 'luxon';
+import { getGoogleAuth } from '../lib/auth.js';
+import { validateSession } from '../lib/sessions.js';
 
 export default async function (req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const userName = validateSession(token);
+  if (!userName) {
+    return res.status(401).json({ error: 'Невалиден или липсващ токен' });
+  }
 
-  const { name, calendarSelections } = req.body;
-
-  if (!name || !calendarSelections) {
-    return res.status(400).json({ error: 'Missing data' });
+  const { calendarSelections } = req.body;
+  if (!calendarSelections) {
+    return res.status(400).json({ error: 'Missing calendarSelections' });
   }
 
   try {
-    const credentials = process.env.GOOGLE_CREDENTIALS_BASE64
-      ? JSON.parse(Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf8'))
-      : JSON.parse(
-          await import('fs').then(fs =>
-            fs.promises.readFile(new URL('../secrets/zaqvki-8d41b171a08f.json', import.meta.url), 'utf8')
-          )
-        );
-
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets']
-    });
-
+    const auth = await getGoogleAuth();
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
+    // 🛡️ Проверка дали времето е позволено (C2:D2)
+    const timerRange = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Месец!C2:D2'
+    });
+
+    const [startStr, endStr] = timerRange.data.values?.[0] || [];
+    const zone = 'Europe/Sofia';
+    const start = DateTime.fromFormat(startStr, 'M/d/yyyy', { zone });
+    const end = DateTime.fromFormat(endStr, 'M/d/yyyy', { zone });
+    const now = DateTime.now().setZone(zone);
+
+    if (!start.isValid || !end.isValid || now < start || now > end) {
+      return res.status(403).json({
+        error: 'Времето за подаване на заявки е изтекло или не е започнало.'
+      });
+    }
+
+    // 🧾 Данни за листа
     const spreadsheetMeta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-    const targetSheet = spreadsheetMeta.data.sheets.find(sheet => sheet.properties.title === 'Заявки');
+    const targetSheet = spreadsheetMeta.data.sheets.find(
+      sheet => sheet.properties.title === 'Заявки'
+    );
     if (!targetSheet) throw new Error('Лист „Заявки“ не е намерен!');
     const realSheetId = targetSheet.properties.sheetId;
 
-    const p3Res = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: 'Месец!P3'
-    });
-    const saveAll = (p3Res.data.values?.[0]?.[0]?.toLowerCase() === 'true');
-
+    // 🔍 Търсим реда на потребителя
     const namesRes = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Заявки!B8:B50'
     });
     const nameRows = namesRes.data.values || [];
-    const lowerName = name.trim().toLowerCase();
+    const lowerName = userName.trim().toLowerCase();
     const rowIndex = nameRows.findIndex(row => row[0]?.trim().toLowerCase() === lowerName);
     if (rowIndex === -1) {
       return res.status(404).json({ error: 'Името не е намерено в листа' });
     }
 
     const sheetRow = 8 + rowIndex;
+
+    // Проверка дали записваме всичко или само pin-натите
+    const p3Res = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Месец!P3'
+    });
+    const saveAll = (p3Res.data.values?.[0]?.[0]?.toLowerCase() === 'true');
+
     const values = [];
     const requests = [];
 
@@ -65,21 +79,20 @@ export default async function (req, res) {
       const pinned = calendarSelections[`pin-${day}`];
       const colIndex = 11 + day - 1;
 
-      const hasValue = typeof val === 'string' && val.trim() !== ''; // Проверка за стойност
+      const hasValue = typeof val === 'string' && val.trim() !== '';
       let shouldSave = false;
       let useRed = false;
 
-      // Проверка за пиннати дни и стойности
       if (saveAll) {
         shouldSave = true;
-        useRed = pinned && hasValue; // Поставяме червено, само ако е пиннато и има стойност
+        useRed = pinned && hasValue;
       } else {
         if (pinned && hasValue) {
           shouldSave = true;
-          useRed = true; // Червено, ако е пиннато и има стойност
+          useRed = true;
         } else if (hasValue && val.toUpperCase() === 'PH') {
           shouldSave = true;
-          useRed = false; // Ако е "PH", не е червено
+          useRed = false;
         }
       }
 
@@ -99,8 +112,8 @@ export default async function (req, res) {
               userEnteredFormat: {
                 textFormat: {
                   foregroundColor: useRed
-                    ? { red: 1, green: 0, blue: 0 } // Червен за пиннато
-                    : { red: 0, green: 0, blue: 0 } // Черен за непиннато
+                    ? { red: 1, green: 0, blue: 0 }
+                    : { red: 0, green: 0, blue: 0 }
                 }
               }
             },
@@ -124,7 +137,7 @@ export default async function (req, res) {
       '', // празно за G
       calendarSelections.extraShift || '',
       '', // празно за I
-      DateTime.now().setZone('Europe/Sofia').toFormat('yyyy-MM-dd')
+      now.toFormat('yyyy-MM-dd')
     ];
 
     await sheets.spreadsheets.values.update({

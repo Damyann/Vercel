@@ -1,39 +1,11 @@
 import { renderCalendar } from './calendar.js';
 import { showWorkPreferencesPanel } from './options.js';
-
-sessionStorage.clear();
+import { renderPerformanceCalendar } from './performance.js';
 
 const preloadData = {
   calendar: null,
-  options: null,
-  timer: null
+  options: null
 };
-
-const preloadPromises = [
-  fetch('/api/getCalendar')
-    .then(res => res.json())
-    .then(data => {
-      preloadData.calendar = data;
-      sessionStorage.setItem('calendarData', JSON.stringify(data));
-    })
-    .catch(err => console.warn('⚠️ Грешка при зареждане на календара:', err)),
-
-  fetch('/api/getOptions')
-    .then(res => res.json())
-    .then(data => {
-      preloadData.options = data;
-      sessionStorage.setItem('optionsData', JSON.stringify(data));
-    })
-    .catch(err => console.warn('⚠️ Грешка при зареждане на опциите:', err)),
-
-  fetch('/api/getTimer')
-    .then(res => res.json())
-    .then(data => {
-      preloadData.timer = data;
-      sessionStorage.setItem('timerData', JSON.stringify(data));
-    })
-    .catch(err => console.warn('⚠️ Грешка при зареждане на таймера:', err))
-];
 
 const form = document.getElementById('loginForm');
 const notification = document.getElementById('notification');
@@ -50,7 +22,7 @@ form.addEventListener('submit', async (e) => {
   const email = document.getElementById('email').value.trim();
 
   try {
-    const response = await fetch('/api/checkLogin', {
+    const response = await fetch('/api/getCheckLogin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email })
@@ -58,8 +30,29 @@ form.addEventListener('submit', async (e) => {
 
     const result = await response.json();
 
-    if (response.ok && result.success) {
-      localStorage.setItem('userName', result.name);
+    if (response.ok && result.token) {
+      sessionStorage.setItem('sessionToken', result.token);
+
+      const preloadPromises = [
+        fetch('/api/getCalendar', {
+          headers: { Authorization: `Bearer ${result.token}` }
+        })
+          .then(res => res.json())
+          .then(data => {
+            preloadData.calendar = data;
+            sessionStorage.setItem('calendarData', JSON.stringify(data));
+          }),
+
+        fetch('/api/getOptions', {
+          headers: { Authorization: `Bearer ${result.token}` }
+        })
+          .then(res => res.json())
+          .then(data => {
+            preloadData.options = data;
+            sessionStorage.setItem('optionsData', JSON.stringify(data));
+          })
+      ];
+
       await Promise.all(preloadPromises);
       const calendarData = preloadData.calendar || JSON.parse(sessionStorage.getItem('calendarData'));
 
@@ -67,9 +60,8 @@ form.addEventListener('submit', async (e) => {
 
       setTimeout(() => {
         form.style.display = 'none';
-        showAfterLoginPanel(result.name, calendarData);
+        showAfterLoginPanel(calendarData);
       }, 600);
-
     } else if (result.error) {
       showNotification(result.error);
       submitButton.innerHTML = originalButtonHTML;
@@ -83,16 +75,14 @@ form.addEventListener('submit', async (e) => {
   }
 });
 
-function showAfterLoginPanel(name, calendarData) {
+function showAfterLoginPanel(calendarData) {
   const container = document.querySelector('.main-content');
 
   const afterBox = document.createElement('div');
   afterBox.className = 'afterlogin-panel';
 
-  const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-
   afterBox.innerHTML = `
-    <h2>Здравей, ${nameCapitalized}!</h2>
+    <h2>Здравей!</h2>
     <p>Какво ще желаете?</p>
     <div class="afterlogin-buttons">
       <button class="btn-performance">Performance</button>
@@ -106,28 +96,24 @@ function showAfterLoginPanel(name, calendarData) {
     afterBox.classList.add('show');
   });
 
-  const calendarBtn = afterBox.querySelector('.btn-calendar');
+  afterBox.querySelector('.btn-calendar').addEventListener('click', () => {
+    afterBox.remove();
+    renderCalendar(
+      calendarData.year,
+      calendarData.month,
+      calendarData.monthName,
+      calendarData.options,
+      calendarData.weights,
+      calendarData.pinLimit,
+      calendarData.pinLimitEnabled,
+      calendarData.disabledDays || []
+    );
+  });
 
-  if (window.closedState) {
-    calendarBtn.disabled = true;
-    calendarBtn.classList.add('disabled');
-    calendarBtn.title = 'Заявките са временно затворени.';
-  } else {
-    calendarBtn.addEventListener('click', () => {
-      afterBox.remove();
-      renderCalendar(
-        calendarData.year,
-        calendarData.month,
-        name,
-        calendarData.monthName,
-        calendarData.options,
-        calendarData.weights,
-        calendarData.pinLimit,
-        calendarData.pinLimitEnabled,
-        calendarData.disabledDays || []
-      );
-    });
-  }
+  afterBox.querySelector('.btn-performance').addEventListener('click', () => {
+    afterBox.remove();
+    renderPerformanceCalendar();
+  });
 }
 
 function showNotification(message) {
@@ -135,12 +121,3 @@ function showNotification(message) {
   notification.classList.add('show');
   setTimeout(() => notification.classList.remove('show'), 3000);
 }
-
-
-import { renderPerformanceCalendar } from './performance.js';
-
-document.addEventListener('click', (e) => {
-  if (e.target.classList.contains('btn-performance')) {
-    renderPerformanceCalendar();
-  }
-});

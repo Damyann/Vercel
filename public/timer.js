@@ -1,6 +1,9 @@
 (() => {
   const timerEl = document.getElementById('countdown-timer');
+  if (!timerEl) return;
+
   const valueSpan = timerEl.querySelector('.value');
+  if (!valueSpan) return;
 
   function formatRemaining(ms) {
     const s = Math.floor(ms / 1000);
@@ -13,12 +16,12 @@
 
   window.closedState = false;
 
-  fetch('/api/getTimer')
-    .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+  fetch('/api/getTimer') // 🔓 Публична заявка — без token
+    .then(res => res.json().then(data => ({ ok: res.ok, data })))
     .then(({ ok, data }) => {
-      if (!ok || data.status === 'closed') {
+      if (!ok || !data || data.status === 'closed') {
         window.closedState = true;
-        timerEl.innerHTML = data.message || 'Заявките са затворени';
+        timerEl.innerHTML = data?.message || 'Заявките са затворени';
         timerEl.classList.add('closed');
         return;
       }
