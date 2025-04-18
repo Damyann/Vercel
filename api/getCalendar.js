@@ -1,6 +1,4 @@
 import { google } from 'googleapis';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { getGoogleAuth } from '../lib/auth.js';
 import { validateSession } from '../lib/sessions.js';
 
@@ -10,12 +8,11 @@ const monthMap = {
   'септември': 9, 'октомври': 10, 'ноември': 11, 'декември': 12
 };
 
-export default async function (req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // 🔐 Валидираме токен
   const token = req.headers.authorization?.replace('Bearer ', '');
   const userName = validateSession(token);
   if (!userName) {
@@ -27,15 +24,14 @@ export default async function (req, res) {
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
-    const dateRes = await sheets.spreadsheets.values.get({
+    // Вземаме година и месец от A2 и B2
+    const [yearStr, rawMonth] = (await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Месец!A2:B2'
-    });
+    })).data.values?.[0] || [];
 
-    const values = dateRes.data.values?.[0] || [];
-    const year = parseInt(values[0]);
-    const rawMonth = values[1]?.trim();
-    const monthKey = rawMonth?.toLowerCase();
+    const year = parseInt(yearStr);
+    const monthKey = rawMonth?.trim().toLowerCase();
     const month = monthMap[monthKey];
     const monthName = rawMonth?.charAt(0).toUpperCase() + rawMonth?.slice(1).toLowerCase();
 
@@ -43,42 +39,41 @@ export default async function (req, res) {
       return res.status(400).json({ error: 'Невалидни данни за месец/година' });
     }
 
-    const optionsRes = await sheets.spreadsheets.values.get({
+    // Опции (Q2:R11)
+    const options = (await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Месец!Q2:R11'
-    });
+    })).data.values?.filter(r => r[1]?.toLowerCase() === 'true').map(r => r[0]) || [];
 
-    const options = (optionsRes.data.values || [])
-      .filter(r => r[1]?.toLowerCase() === 'true')
-      .map(r => r[0]);
-
-    const weightsRes = await sheets.spreadsheets.values.get({
+    // Тегла (Q2:S11)
+    const weightsRaw = (await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Месец!Q2:S11'
-    });
+    })).data.values || [];
 
     const weights = {};
-    (weightsRes.data.values || []).forEach(row => {
+    for (const row of weightsRaw) {
       const label = row[0];
       const weight = parseFloat(row[2]);
       if (label && !isNaN(weight)) weights[label] = weight;
-    });
+    }
 
-    const pinLimitRes = await sheets.spreadsheets.values.get({
+    // Ограничение за pin бутони (O2:O3)
+    const pinLimitData = (await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Месец!O2:O3'
-    });
+    })).data.values || [];
 
-    const pinLimitVals = pinLimitRes.data.values || [];
-    const pinLimit = parseInt(pinLimitVals?.[0]?.[0]) || 0;
-    const pinLimitEnabled = pinLimitVals?.[1]?.[0]?.toLowerCase() === 'true';
+    const pinLimit = parseInt(pinLimitData?.[0]?.[0]) || 0;
+    const pinLimitEnabled = pinLimitData?.[1]?.[0]?.toLowerCase() === 'true';
 
-    const disabledRes = await sheets.spreadsheets.values.get({
+    // Забранени дни (T2:U32)
+    const disabledRaw = (await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Месец!T2:U32'
-    });
+    })).data.values || [];
 
-    const disabledDays = (disabledRes.data.values || [])
+    const disabledDays = disabledRaw
       .filter(r => r[1]?.toLowerCase() !== 'true')
       .map(r => parseInt(r[0]))
       .filter(n => !isNaN(n));

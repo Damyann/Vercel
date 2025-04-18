@@ -4,10 +4,10 @@ import { getGoogleAuth } from '../lib/auth.js';
 
 export default async function (req, res) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
-  // 🔐 Валидация на токен
+  // 🔐 Проверка на токен
   const token = req.headers.authorization?.replace('Bearer ', '');
   const userName = validateSession(token);
   if (!userName) {
@@ -16,86 +16,77 @@ export default async function (req, res) {
 
   try {
     const auth = await getGoogleAuth();
-    const client = await auth.getClient();
-    const sheets = google.sheets({ version: 'v4', auth: client });
+    const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
-    const { data: perfMeta } = await sheets.spreadsheets.values.get({
+    // 📅 Извличаме текущ месец и година
+    const metaRes = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Performance!A3:B3',
     });
-
-    const row = perfMeta.values?.[0] || [];
-    const year = parseInt(row[0]);
-    const monthName = row[1]?.trim();
-
-    if (isNaN(year) || !monthName) {
-      return res.status(400).json({ success: false, error: 'Невалидна година или месец.' });
+    const [yearStr, monthName] = metaRes.data.values?.[0] || [];
+    const year = parseInt(yearStr);
+    if (!year || !monthName) {
+      return res.status(400).json({ success: false, error: 'Невалидни данни за месец/година' });
     }
 
     const monthIndex = [
-      'Януари','Февруари','Март','Април','Май','Юни',
-      'Юли','Август','Септември','Октомври','Ноември','Декември'
+      'Януари', 'Февруари', 'Март', 'Април', 'Май', 'Юни',
+      'Юли', 'Август', 'Септември', 'Октомври', 'Ноември', 'Декември'
     ].findIndex(m => m.toLowerCase() === monthName.toLowerCase());
 
     const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
 
-    const { data: rangeData } = await sheets.spreadsheets.values.get({
+    // 🥇 Граници за злато и сребро
+    const rangesRes = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Performance!B5:B6',
     });
+    const [goldRaw, silverRaw] = rangesRes.data.values?.map(r => r[0]) || [];
 
-    const [goldText = '', silverText = ''] = rangeData.values?.map(r => r[0]) || [];
-
-    const parseRange = txt => {
-      if (!txt) return [NaN, NaN];
-      const [a, b] = txt.split('-').map(v => parseInt(v.trim()));
-      return [a, isNaN(b) ? a : b];
+    const parseRange = (text) => {
+      const [from, to] = (text || '').split('-').map(s => parseInt(s.trim()));
+      return [from, isNaN(to) ? from : to];
     };
 
-    const [goldStart, goldEnd] = parseRange(goldText);
-    const [silverStart, silverEnd] = parseRange(silverText);
+    const [goldStart, goldEnd] = parseRange(goldRaw);
+    const [silverStart, silverEnd] = parseRange(silverRaw);
 
-    const { data: scoreData } = await sheets.spreadsheets.values.get({
+    // 📊 Извличане на резултати от Scoreboard
+    const scoreRes = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Актуален-Scoreboard!C8:U50',
     });
 
-    let userScore = null;
     const allScores = [];
+    let userScore = null;
 
-    scoreData.values?.forEach(row => {
+    for (const row of scoreRes.data.values || []) {
       const name = row[0]?.trim().toLowerCase();
-      const score = parseFloat(row[18]); // U колона
+      const score = parseFloat(row[18]); // колона U
       if (!isNaN(score)) {
         allScores.push(score);
-        if (name === userName) userScore = score;
+        if (name === userName.toLowerCase()) {
+          userScore = score;
+        }
       }
-    });
+    }
 
     if (userScore === null) {
       return res.status(404).json({ success: false, error: 'Потребителят не е намерен.' });
     }
 
     const sorted = [...new Set(allScores)].sort((a, b) => b - a);
-    const userRank = sorted.indexOf(userScore) + 1;
+    const rank = sorted.indexOf(userScore) + 1;
 
     let medalType = 'none';
-    if (userRank >= goldStart && userRank <= goldEnd) {
-      medalType = 'gold';
-    } else if (userRank >= silverStart && userRank <= silverEnd) {
-      medalType = 'silver';
-    }
+    if (rank >= goldStart && rank <= goldEnd) medalType = 'gold';
+    else if (rank >= silverStart && rank <= silverEnd) medalType = 'silver';
 
+    // 💰 Надбавки
     const [aVals, u5Val] = await Promise.all([
-      sheets.spreadsheets.values.get({
-        spreadsheetId: sheetId,
-        range: 'Performance!A5:A6',
-      }),
-      sheets.spreadsheets.values.get({
-        spreadsheetId: sheetId,
-        range: 'Актуален-Scoreboard!U5',
-      }),
+      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Performance!A5:A6' }),
+      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Актуален-Scoreboard!U5' }),
     ]);
 
     const a5 = parseFloat(aVals.data.values?.[0]?.[0]) || 0;
@@ -103,27 +94,20 @@ export default async function (req, res) {
     const u5 = parseFloat(u5Val.data.values?.[0]?.[0]) || 1;
 
     let finalScore = userScore * u5;
-    if (userRank >= goldStart && userRank <= goldEnd) {
-      finalScore += a5;
-    } else if (userRank >= silverStart && userRank <= silverEnd) {
-      finalScore += a6;
-    }
+    if (medalType === 'gold') finalScore += a5;
+    else if (medalType === 'silver') finalScore += a6;
 
-    const { data: monthlyData } = await sheets.spreadsheets.values.get({
+    // 🗓️ Данни по дни
+    const monthly = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Актуален-Monthly!B3:BN3',
     });
 
-    let dailyValues = Array(31).fill('--');
-    if (monthlyData?.values?.length) {
-      const matchRow = monthlyData.values[0];
-
-      const dayColumnIndexes = Array.from({ length: 31 }, (_, i) => 4 + i * 2);
-      dailyValues = dayColumnIndexes.map(index => {
-        const val = matchRow[index];
-        return val?.toString().trim() || '--';
-      });
-    }
+    const matchRow = monthly.data.values?.[0] || [];
+    const dailyValues = Array.from({ length: 31 }, (_, i) => {
+      const val = matchRow[4 + i * 2];
+      return val?.toString().trim() || '--';
+    });
 
     return res.status(200).json({
       success: true,
@@ -134,7 +118,7 @@ export default async function (req, res) {
       score: userScore,
       medalType,
       finalScore,
-      dailyValues,
+      dailyValues
     });
 
   } catch (err) {

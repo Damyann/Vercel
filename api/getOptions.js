@@ -7,7 +7,7 @@ export default async function (req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // 🔐 Валидация на токен
+  // 🔐 Проверка на токен
   const token = req.headers.authorization?.replace('Bearer ', '');
   const userName = validateSession(token);
   if (!userName) {
@@ -19,32 +19,23 @@ export default async function (req, res) {
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
-    const [nightData, shiftData, extraData] = await Promise.all([
+    const [nightRes, shiftRes, extraRes] = await Promise.all([
       sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Месец!E2:I3' }),
       sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Месец!J2:M3' }),
-      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Месец!N3' }),
+      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Месец!N3' })
     ]);
 
-    const nightLabels = nightData.data.values?.[0] || [];
-    const nightActives = nightData.data.values?.[1] || [];
-    const nightCounts = nightLabels.filter((label, i) =>
-      label && nightActives[i]?.toLowerCase() === 'true'
+    const nightCounts = (nightRes.data.values?.[0] || []).filter((label, i) =>
+      label && nightRes.data.values?.[1]?.[i]?.toLowerCase() === 'true'
     );
 
-    const shiftLabels = shiftData.data.values?.[0] || [];
-    const shiftActives = shiftData.data.values?.[1] || [];
-    const shiftTypes = shiftLabels.filter((label, i) =>
-      label && shiftActives[i]?.toLowerCase() === 'true'
+    const shiftTypes = (shiftRes.data.values?.[0] || []).filter((label, i) =>
+      label && shiftRes.data.values?.[1]?.[i]?.toLowerCase() === 'true'
     );
 
-    const extraEnabled = extraData.data.values?.[0]?.[0]?.toLowerCase() === 'true';
+    const extraEnabled = extraRes.data.values?.[0]?.[0]?.toLowerCase() === 'true';
 
-    return res.status(200).json({
-      nightCounts,
-      shiftTypes,
-      extraEnabled
-    });
-
+    return res.status(200).json({ nightCounts, shiftTypes, extraEnabled });
   } catch (err) {
     console.error('getOptions error:', err);
     return res.status(500).json({ error: 'Internal server error' });
