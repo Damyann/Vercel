@@ -131,7 +131,12 @@ export async function showWorkPreferencesPanel() {
         body: JSON.stringify({ calendarSelections })
       });
 
-      await res.json();
+      await res.json(); // успешно записване
+
+      // 🧹 Изчистваме cache-а, за да няма стари избори при F5 или reload
+      sessionStorage.removeItem('calendarSelections');
+      sessionStorage.removeItem('selectedOptions');
+      // sessionStorage.clear(); // алтернатива, ако няма други данни
 
       const calendarData = JSON.parse(sessionStorage.getItem('calendarData')) || {};
       const { monthName = '–', disabledDays = [] } = calendarData;
@@ -201,6 +206,8 @@ export async function showWorkPreferencesPanel() {
       container.appendChild(optionsPanel);
 
       preview.querySelector('.save-ok-button').addEventListener('click', () => {
+        // 🧹 допълнително чистене при ОК
+        sessionStorage.clear();
         preview.remove();
         location.reload();
       });
