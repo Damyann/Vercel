@@ -4,7 +4,8 @@ import { renderPerformanceCalendar } from './performance.js';
 
 const preloadData = {
   calendar: null,
-  options: null
+  options: null,
+  timer: null
 };
 
 const form = document.getElementById('loginForm');
@@ -50,10 +51,26 @@ form.addEventListener('submit', async (e) => {
           .then(data => {
             preloadData.options = data;
             sessionStorage.setItem('optionsData', JSON.stringify(data));
+          }),
+
+        fetch('/api/getTimer') // 🔓 без токен
+          .then(res => res.json())
+          .then(data => {
+            preloadData.timer = data;
+            sessionStorage.setItem('timerData', JSON.stringify(data));
+
+            window.closedState = data.status === 'closed';
+
+            const el = document.getElementById('countdown-timer');
+            if (el && data.status === 'closed') {
+              el.innerHTML = data.message || 'Заявките са затворени';
+              el.classList.add('closed');
+            }
           })
       ];
 
       await Promise.all(preloadPromises);
+
       const calendarData = preloadData.calendar || JSON.parse(sessionStorage.getItem('calendarData'));
 
       form.classList.add('slide-out');
@@ -62,6 +79,7 @@ form.addEventListener('submit', async (e) => {
         form.style.display = 'none';
         showAfterLoginPanel(calendarData);
       }, 600);
+
     } else if (result.error) {
       showNotification(result.error);
       submitButton.innerHTML = originalButtonHTML;
@@ -96,19 +114,27 @@ function showAfterLoginPanel(calendarData) {
     afterBox.classList.add('show');
   });
 
-  afterBox.querySelector('.btn-calendar').addEventListener('click', () => {
-    afterBox.remove();
-    renderCalendar(
-      calendarData.year,
-      calendarData.month,
-      calendarData.monthName,
-      calendarData.options,
-      calendarData.weights,
-      calendarData.pinLimit,
-      calendarData.pinLimitEnabled,
-      calendarData.disabledDays || []
-    );
-  });
+  const calendarBtn = afterBox.querySelector('.btn-calendar');
+
+  if (window.closedState) {
+    calendarBtn.disabled = true;
+    calendarBtn.classList.add('disabled');
+    calendarBtn.title = 'Заявките са временно затворени.';
+  } else {
+    calendarBtn.addEventListener('click', () => {
+      afterBox.remove();
+      renderCalendar(
+        calendarData.year,
+        calendarData.month,
+        calendarData.monthName,
+        calendarData.options,
+        calendarData.weights,
+        calendarData.pinLimit,
+        calendarData.pinLimitEnabled,
+        calendarData.disabledDays || []
+      );
+    });
+  }
 
   afterBox.querySelector('.btn-performance').addEventListener('click', () => {
     afterBox.remove();
