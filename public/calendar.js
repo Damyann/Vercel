@@ -1,6 +1,4 @@
 export function renderCalendar(year, month, monthName, options, weights, pinLimit, pinLimitEnabled, disabledDays = []) {
-  const token = sessionStorage.getItem('sessionToken');
-
   const existingCalendar = document.getElementById('calendar');
   if (existingCalendar) existingCalendar.remove();
 
@@ -9,7 +7,7 @@ export function renderCalendar(year, month, monthName, options, weights, pinLimi
 
   const greeting = document.createElement('div');
   greeting.className = 'calendar-greeting';
-  greeting.textContent = `Моля, изберете датите, които са от значение за Вас.`;
+  greeting.textContent = 'Моля, изберете датите, които са от значение за Вас.';
 
   const monthBanner = document.createElement('div');
   monthBanner.className = 'calendar-month-banner';
@@ -202,7 +200,7 @@ function renderSummary(summary) {
 
   import('./options.js').then(({ showWorkPreferencesPanel }) => {
     panel.querySelector('.submit-button').addEventListener('click', () => {
-      showWorkPreferencesPanel(); // ❗️ без аргумент – сървърът знае кой е
+      showWorkPreferencesPanel(); // 🔐 без userName
     });
   });
 

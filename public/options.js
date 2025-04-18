@@ -22,9 +22,7 @@ export async function showWorkPreferencesPanel() {
   const token = sessionStorage.getItem('sessionToken');
 
   const response = await fetch('/api/getOptions', {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    headers: { Authorization: `Bearer ${token}` }
   });
   const options = await response.json();
 
@@ -76,6 +74,7 @@ export async function showWorkPreferencesPanel() {
 
       if (cachedCalendarData) {
         const calendarData = JSON.parse(cachedCalendarData);
+
         const calendarContainer = document.createElement('div');
         calendarContainer.id = 'calendar';
         calendarContainer.classList.add('slide-in');

@@ -1,7 +1,11 @@
 export async function renderPerformanceCalendar() {
-  try {
-    const token = sessionStorage.getItem('sessionToken');
+  const token = sessionStorage.getItem('sessionToken');
+  if (!token) {
+    console.error('⛔ Липсва sessionToken');
+    return;
+  }
 
+  try {
     const res = await fetch('/api/getPerformance', {
       headers: {
         Authorization: `Bearer ${token}`
@@ -9,7 +13,8 @@ export async function renderPerformanceCalendar() {
     });
 
     const data = await res.json();
-    if (!data.success) {
+
+    if (!res.ok || !data.success) {
       alert('❌ Грешка при зареждане на календара.');
       return;
     }
@@ -81,5 +86,6 @@ export async function renderPerformanceCalendar() {
     container.appendChild(wrapper);
   } catch (err) {
     console.error('⚠️ renderPerformanceCalendar error:', err);
+    alert('⚠️ Възникна неочаквана грешка.');
   }
 }
