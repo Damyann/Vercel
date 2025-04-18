@@ -1,18 +1,19 @@
 import { google } from 'googleapis';
 import { DateTime } from 'luxon';
 import { getGoogleAuth } from '../lib/auth.js';
-import { validateSession } from '../lib/sessions.js';
+import { verifyToken } from '../lib/jwt.js';
 
 export default async function (req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // 🔐 Валидираме токена
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  const userName = validateSession(token);
+  // 🔐 JWT проверка
+  const token   = req.headers.authorization?.replace('Bearer ', '');
+  const decoded = verifyToken(token);
+  const userName = decoded?.user;
   if (!userName) {
-    return res.status(401).json({ error: 'Невалиден или липсващ токен' });
+    return res.status(401).json({ error: 'Невалиден или изтекъл токен' });
   }
 
   const { calendarSelections } = req.body;
@@ -21,138 +22,120 @@ export default async function (req, res) {
   }
 
   try {
-    const auth = await getGoogleAuth();
+    const auth   = await getGoogleAuth();
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
     const zone = 'Europe/Sofia';
-    const now = DateTime.now().setZone(zone);
+    const now  = DateTime.now().setZone(zone);
 
-    // ⏳ Проверка на времеви интервал
-    const timerRes = await sheets.spreadsheets.values.get({
+    // ⏳ Проверка на времевия интервал
+    const timer = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Месец!C2:D2',
+      range: 'Месец!C2:D2'
     });
-    const [startStr, endStr] = timerRes.data.values?.[0] || [];
-    const start = DateTime.fromFormat(startStr, 'M/d/yyyy', { zone });
-    const end = DateTime.fromFormat(endStr, 'M/d/yyyy', { zone });
-
-    if (!start.isValid || !end.isValid || now < start || now > end) {
-      return res.status(403).json({ error: 'Времето за подаване е изтекло или не е започнало' });
+    const [startStr,endStr] = timer.data.values?.[0] || [];
+    const start = DateTime.fromFormat(startStr,'M/d/yyyy',{zone});
+    const end   = DateTime.fromFormat(endStr,'M/d/yyyy',{zone});
+    if (!start.isValid||!end.isValid||now<start||now>end) {
+      return res.status(403).json({ error:'Времето за подаване е изтекло или не е започнало' });
     }
 
-    // 🔍 Данни за листа "Заявки"
-    const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-    const targetSheet = meta.data.sheets.find(s => s.properties.title === 'Заявки');
-    if (!targetSheet) throw new Error('Лист „Заявки“ не е намерен');
-    const realSheetId = targetSheet.properties.sheetId;
-
-    // 🔎 Откриване на ред по име
+    // 🔍 Намираме реда на потребителя
     const nameRes = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: 'Заявки!B8:B50',
+      spreadsheetId: sheetId, range:'Заявки!B8:B50'
     });
-    const nameRows = nameRes.data.values || [];
-    const rowIndex = nameRows.findIndex(row => row[0]?.trim().toLowerCase() === userName.trim().toLowerCase());
-    if (rowIndex === -1) {
-      return res.status(404).json({ error: 'Името не е намерено в листа' });
-    }
-    const sheetRow = 8 + rowIndex;
+    const rowIdx = (nameRes.data.values||[])
+      .findIndex(r=>r[0]?.trim().toLowerCase()===userName);
+    if (rowIdx===-1) return res.status(404).json({ error:'Името не е намерено в листа' });
+    const sheetRow = 8+rowIdx;
 
-    // 🔁 Проверка дали записваме всичко или само важните
-    const saveAllRes = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: 'Месец!P3',
-    });
-    const saveAll = (saveAllRes.data.values?.[0]?.[0]?.toLowerCase() === 'true');
+    // Дали записваме всичко
+    const saveAll = (await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId, range:'Месец!P3'
+    })).data.values?.[0]?.[0]?.toLowerCase()==='true';
 
-    const values = [];
+    // Строим масива за дните + цветови заявки
+    const values   = [];
     const requests = [];
+    const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+    const realSheetId = meta.data.sheets.find(s=>s.properties.title==='Заявки').properties.sheetId;
 
-    for (let day = 1; day <= 31; day++) {
-      const val = calendarSelections[day];
-      const pinned = calendarSelections[`pin-${day}`];
-      const hasValue = typeof val === 'string' && val.trim() !== '';
-      const colIndex = 11 + (day - 1); // L е 11
+    for (let day=1; day<=31; day++) {
+      const val     = calendarSelections[day];
+      const pinned  = calendarSelections[`pin-${day}`];
+      const hasVal  = typeof val==='string' && val.trim()!=='';
+      const colIdx  = 11+(day-1);  // L = 11
+      let should=false, red=false;
 
-      let shouldSave = false;
-      let useRed = false;
-
-      if (saveAll) {
-        shouldSave = true;
-        useRed = pinned && hasValue;
-      } else if (hasValue) {
-        if (val.toUpperCase() === 'PH') {
-          shouldSave = true;
-        } else if (pinned) {
-          shouldSave = true;
-          useRed = true;
-        }
+      if (saveAll) { should=true; red=pinned&&hasVal; }
+      else if (hasVal) {
+        if (val.toUpperCase()==='PH') should=true;
+        else if (pinned) { should=true; red=true; }
       }
 
-      values.push(shouldSave ? val || '' : '');
+      values.push(should ? val||'' : '');
 
-      if (shouldSave) {
+      if (should) {
         requests.push({
-          repeatCell: {
-            range: {
+          repeatCell:{
+            range:{
               sheetId: realSheetId,
-              startRowIndex: sheetRow - 1,
-              endRowIndex: sheetRow,
-              startColumnIndex: colIndex,
-              endColumnIndex: colIndex + 1,
+              startRowIndex: sheetRow-1,
+              endRowIndex:   sheetRow,
+              startColumnIndex: colIdx,
+              endColumnIndex:   colIdx+1
             },
-            cell: {
-              userEnteredFormat: {
-                textFormat: {
-                  foregroundColor: useRed
-                    ? { red: 1, green: 0, blue: 0 }
-                    : { red: 0, green: 0, blue: 0 },
-                },
-              },
+            cell:{
+              userEnteredFormat:{
+                textFormat:{
+                  foregroundColor: red
+                    ? { red:1, green:0, blue:0 }
+                    : { red:0, green:0, blue:0 }
+                }
+              }
             },
-            fields: 'userEnteredFormat.textFormat.foregroundColor',
-          },
+            fields:'userEnteredFormat.textFormat.foregroundColor'
+          }
         });
       }
     }
 
-    // 📝 Записване на дните
+    // 📝 Запис на дните
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
-      range: `Заявки!L${sheetRow}:AP${sheetRow}`,
-      valueInputOption: 'USER_ENTERED',
-      requestBody: { values: [values] },
+      range:`Заявки!L${sheetRow}:AP${sheetRow}`,
+      valueInputOption:'USER_ENTERED',
+      requestBody:{ values:[values] }
     });
 
     // 🧩 Екстри
     const extras = [
-      calendarSelections.nightCount || '',
-      '', // празно за колона E
-      calendarSelections.shiftType || '',
-      '', // празно за G
-      calendarSelections.extraShift || '',
-      '', // празно за I
-      now.toFormat('yyyy-MM-dd'),
+      calendarSelections.nightCount||'',
+      '',                               // E
+      calendarSelections.shiftType||'',
+      '',                               // G
+      calendarSelections.extraShift||'',
+      '',                               // I
+      now.toFormat('yyyy-MM-dd')        // J
     ];
-
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
-      range: `Заявки!D${sheetRow}:J${sheetRow}`,
-      valueInputOption: 'USER_ENTERED',
-      requestBody: { values: [extras] },
+      range:`Заявки!D${sheetRow}:J${sheetRow}`,
+      valueInputOption:'USER_ENTERED',
+      requestBody:{ values:[extras] }
     });
 
     // 🎨 Цветове
-    if (requests.length > 0) {
+    if (requests.length) {
       await sheets.spreadsheets.batchUpdate({
         spreadsheetId: sheetId,
-        requestBody: { requests },
+        requestBody:{ requests }
       });
     }
 
-    return res.status(200).json({ success: true });
+    res.status(200).json({ success:true });
   } catch (err) {
     console.error('getSave error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error:'Internal server error' });
   }
 }

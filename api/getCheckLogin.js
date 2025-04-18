@@ -1,8 +1,6 @@
 import { google } from 'googleapis';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { createSession } from '../lib/sessions.js';
-import { getGoogleAuth } from '../lib/auth.js';
+import { signToken } from '../lib/jwt.js';          // 🆕
+import { getGoogleAuth } from '../lib/auth.js';     // ✔ остава
 
 export default async function (req, res) {
   if (req.method !== 'POST') {
@@ -10,7 +8,6 @@ export default async function (req, res) {
   }
 
   const { name, email } = req.body;
-
   if (!name || !email) {
     return res.status(400).json({ error: 'Липсва име или имейл' });
   }
@@ -20,22 +17,22 @@ export default async function (req, res) {
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
-    const data = await sheets.spreadsheets.values.get({
+    const { data } = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Заявки!B8:C50',
     });
 
-    const rows = data.data.values || [];
     const inputName = name.trim().toLowerCase();
     const inputEmail = email.trim().toLowerCase();
 
-    const match = rows.find(row =>
-      row[0]?.trim().toLowerCase() === inputName &&
-      row[1]?.trim().toLowerCase() === inputEmail
+    const match = (data.values || []).find(
+      r => r[0]?.trim().toLowerCase() === inputName &&
+           r[1]?.trim().toLowerCase() === inputEmail
     );
 
     if (match) {
-      const token = createSession(match[0]); // Записваме името вътре
+      // 🆕  подписан JWT вместо in‑memory session
+      const token = signToken({ user: inputName });
       return res.status(200).json({ success: true, token });
     } else {
       return res.status(401).json({ error: 'Невалидно име или имейл' });
