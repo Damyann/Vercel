@@ -1,10 +1,6 @@
-/**
- * Заявка за данните за performance.
- * @param {string} userParam – потребителското име (малки букви)
- * @returns {Promise<object>} – JSON от API-то, или хвърля грешка
- */
-export async function fetchPerformanceData(userParam) {
-  const res = await fetch(`/api/getPerformance?user=${encodeURIComponent(userParam)}`);
+export async function fetchPerformanceData(userParam, period = 'now') {
+  const url = `/api/getPerformance?user=${encodeURIComponent(userParam)}${period === 'previous' ? '&period=previous' : ''}`;
+  const res = await fetch(url);
   const data = await res.json();
   if (!res.ok || !data.success) {
     throw new Error(data.error || 'Неуспешно зареждане на данните');
@@ -12,10 +8,6 @@ export async function fetchPerformanceData(userParam) {
   return data;
 }
 
-/**
- * Рендерира performance календара спрямо вече заредените data.
- * @param {object} data – обект с полета monthName, daysInMonth, score, medalType, finalScore, dailyValues
- */
 export function renderPerformanceCalendar(data) {
   const {
     monthName,
@@ -70,6 +62,7 @@ export function renderPerformanceCalendar(data) {
 
   const grid = document.createElement('div');
   grid.className = 'performance-grid';
+
   for (let d = 1; d <= daysInMonth; d++) {
     const cell = document.createElement('div');
     cell.className = 'performance-cell';

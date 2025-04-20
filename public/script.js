@@ -117,7 +117,6 @@ function showAfterLoginPanel(calData) {
   if (isClosed) {
     calBtn.disabled = true;
     calBtn.title = 'Заявките са затворени.';
-    // calBtn.textContent = 'Заявките са затворени'; — премахнато
   } else {
     calBtn.addEventListener('click', () => {
       panel.remove();
@@ -150,7 +149,6 @@ function showAfterLoginPanel(calData) {
   });
 }
 
-
 function renderPerformanceChoicePanel(meta) {
   const container = document.createElement('div');
   container.id = 'performance-choose-panel';
@@ -179,8 +177,16 @@ function renderPerformanceChoicePanel(meta) {
     }
   };
 
-  beforeBtn.onclick = () => {
-    showNotification('Предишен месец – още не е активен');
+  beforeBtn.onclick = async () => {
+    try {
+      const user = (sessionStorage.getItem('displayName') || '').toLowerCase();
+      const data = await fetchPerformanceData(user, 'previous');
+      container.remove();
+      renderPerformanceCalendar(data);
+    } catch (err) {
+      showNotification('Грешка при зареждане на предишен месец');
+      console.error(err);
+    }
   };
 }
 
