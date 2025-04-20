@@ -1,12 +1,4 @@
 /**
- * performance.js
- * 
- * Този файл разделя fetch и render на два метода:
- *  - fetchPerformanceData(user)   – прави заявка към /api/getPerformance?user=...
- *  - renderPerformanceCalendar(data) – рендерира календара веднага от вече заредените данни
- */
-
-/**
  * Заявка за данните за performance.
  * @param {string} userParam – потребителското име (малки букви)
  * @returns {Promise<object>} – JSON от API-то, или хвърля грешка
@@ -35,7 +27,6 @@ export function renderPerformanceCalendar(data) {
   } = data;
 
   const container = document.querySelector('.main-content');
-  // Изчистваме старото съдържание без innerHTML
   while (container.firstChild) {
     container.removeChild(container.firstChild);
   }
@@ -43,23 +34,19 @@ export function renderPerformanceCalendar(data) {
   const wrapper = document.createElement('div');
   wrapper.id = 'performance-calendar';
 
-  // Заглавие
   const h2 = document.createElement('h2');
   h2.className = 'performance-greeting';
   h2.textContent = 'Performance';
   wrapper.appendChild(h2);
 
-  // Банер
   const banner = document.createElement('div');
   banner.className = 'performance-month-banner';
 
-  // Име на месец
   const monthEl = document.createElement('span');
   monthEl.className = 'performance-month-name';
   monthEl.textContent = monthName;
   banner.appendChild(monthEl);
 
-  // Суров резултат + медал
   const scoreEl = document.createElement('span');
   scoreEl.className = 'performance-score-badge';
   if (medalType === 'gold' || medalType === 'silver') {
@@ -74,7 +61,6 @@ export function renderPerformanceCalendar(data) {
   scoreEl.appendChild(document.createTextNode(` ${score} т.`));
   banner.appendChild(scoreEl);
 
-  // Финален резултат
   const finalEl = document.createElement('span');
   finalEl.className = 'performance-score-badge';
   finalEl.textContent = `${Math.round(finalScore)} лв`;
@@ -82,7 +68,6 @@ export function renderPerformanceCalendar(data) {
 
   wrapper.appendChild(banner);
 
-  // Решетка с дни
   const grid = document.createElement('div');
   grid.className = 'performance-grid';
   for (let d = 1; d <= daysInMonth; d++) {

@@ -1,0 +1,84 @@
+/* per-choose.css — напълно независим стил */
+
+#performance-choose-panel {
+    width: 100%;
+    max-width: 500px;
+    margin: 1vh auto 0;
+    padding: 30px;
+    border: 2px solid #00ffff;
+    border-radius: 20px;
+    background: linear-gradient(#004746, #111111);
+    box-shadow: 0 0 16px #00ffff88;
+    color: #00ffff;
+    text-align: center;
+    box-sizing: border-box;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    position: relative;
+    z-index: 10;
+  }
+  
+  #performance-choose-panel.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  @media (max-width: 1024px) {
+    #performance-choose-panel {
+      width: calc(100% - 4px);
+      max-width: 780px;
+    }
+  }
+  
+  #performance-choose-panel h2 {
+    font-size: 2.6em;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  #performance-choose-panel .choose-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: nowrap;
+    flex-direction: row;
+  }
+  
+  #performance-choose-panel .choose-before-btn,
+  #performance-choose-panel .choose-now-btn {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 12px 28px;
+    border-radius: 12px;
+    background: transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-width: 140px;
+  }
+  
+  /* 💖 Розов бутон за предишен месец */
+  .choose-before-btn {
+    color: #ff66cc;
+    border: 2px solid #ff66cc;
+    box-shadow: 0 0 12px #ff66cc44;
+  }
+  
+  .choose-before-btn:hover {
+    background-color: #ff66cc22;
+    box-shadow: 0 0 16px #ff66cc88;
+  }
+  
+  /* 🟢 Зелен бутон за текущ месец */
+  .choose-now-btn {
+    color: #00ff88;
+    border: 2px solid #00ff88;
+    box-shadow: 0 0 12px #00ff8844;
+  }
+  
+  .choose-now-btn:hover {
+    background-color: #00ff8822;
+    box-shadow: 0 0 16px #00ff88aa;
+  }
+  
