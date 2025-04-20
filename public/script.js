@@ -210,3 +210,19 @@ function showNotification(msg) {
   notification.classList.add('show');
   setTimeout(() => notification.classList.remove('show'), 3000);
 }
+
+// 👉 Изчистване на sessionStorage при зареждане на сайта
+window.addEventListener('load', () => {
+  sessionStorage.clear();
+});
+
+// 👉 Рестарт при клик на логото
+document.addEventListener('DOMContentLoaded', () => {
+  const logo = document.getElementById('site-logo');
+  if (logo) {
+    logo.addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.reload();
+    });
+  }
+});

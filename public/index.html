@@ -18,12 +18,10 @@
   <link rel="stylesheet" href="/styles/afterlogin.css"> 
   <link rel="stylesheet" href="/styles/performance.css"> 
   <link rel="stylesheet" href="/styles/per-choose.css">
-
-
 </head>
 <body>
   <header class="header-bar">
-    <img src="/images/logo.svg" alt="Logo" class="logo">
+    <img src="/images/logo.svg" alt="Logo" class="logo" id="site-logo">
     <div id="countdown-timer">
       <div>Оставащо време:</div>
       <div class="value" id="timer-value">--:--</div>
@@ -52,5 +50,15 @@
 
   <script type="module" src="/script.js"></script>
   <script src="/timer.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const logo = document.getElementById('site-logo');
+      if (logo) {
+        logo.addEventListener('click', () => {
+          window.location.reload();
+        });
+      }
+    });
+  </script>
 </body>
 </html>
