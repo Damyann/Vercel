@@ -1,6 +1,5 @@
 import { google } from 'googleapis';
 import { getGoogleAuth } from '../lib/auth.js';
-import { verifyToken } from '../lib/jwt.js';
 
 const monthMap = {
   'януари': 1, 'февруари': 2, 'март': 3, 'април': 4,
@@ -11,14 +10,6 @@ const monthMap = {
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  // 🔐 JWT проверка
-  const token   = req.headers.authorization?.replace('Bearer ', '');
-  const decoded = verifyToken(token);
-  const userName = decoded?.user;
-  if (!userName) {
-    return res.status(401).json({ error: 'Невалиден или изтекъл токен' });
   }
 
   try {

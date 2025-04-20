@@ -1,114 +1,118 @@
 import { google } from 'googleapis';
 import { getGoogleAuth } from '../lib/auth.js';
-import { verifyToken } from '../lib/jwt.js';
 
-export default async function (req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
-  // 🔐 JWT проверка
-  const token   = req.headers.authorization?.replace('Bearer ', '');
-  const decoded = verifyToken(token);
-  const userName = decoded?.user;
-  if (!userName) {
-    return res.status(401).json({ success: false, error: 'Невалиден или изтекъл токен' });
+  // 1) Read user from query
+  const userParam = req.query.user;
+  if (!userParam) {
+    return res.status(400).json({ success: false, error: 'Missing user parameter' });
   }
+  const userName = userParam.trim().toLowerCase();
 
   try {
     const auth   = await getGoogleAuth();
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
-    // Месец / година
+    // 2) Month & year
     const meta = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Performance!A3:B3'
     });
     const [yearStr, monthName] = meta.data.values?.[0] || [];
-    const year = parseInt(yearStr);
+    const year = parseInt(yearStr, 10);
     if (!year || !monthName) {
-      return res.status(400).json({ success: false, error: 'Невалидни данни за месец/година' });
+      return res.status(400).json({ success: false, error: 'Invalid month/year data' });
     }
 
+    // 3) Days in month
     const monthIndex = [
-      'Януари','Февруари','Март','Април','Май','Юни',
-      'Юли','Август','Септември','Октомври','Ноември','Декември'
+      'януари','февруари','март','април','май','юни',
+      'юли','август','септември','октомври','ноември','декември'
     ].findIndex(m => m.toLowerCase() === monthName.toLowerCase());
-
     const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
 
-    // Граници за медали
+    // 4) Medal thresholds
     const ranges = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Performance!B5:B6'
     });
-    const [goldRaw, silverRaw] = ranges.data.values?.map(r => r[0]) || [];
+    const [goldRaw, silverRaw] = (ranges.data.values || []).map(r => r[0]);
     const parseRange = str => {
-      const [a,b] = (str||'').split('-').map(s=>parseInt(s.trim()));
-      return [a, isNaN(b)?a:b];
+      const [a,b] = (str||'').split('-').map(s=>parseInt(s.trim(),10));
+      return [a, isNaN(b) ? a : b];
     };
-    const [goldStart,goldEnd] = parseRange(goldRaw);
-    const [silverStart,silverEnd] = parseRange(silverRaw);
+    const [goldStart, goldEnd]     = parseRange(goldRaw);
+    const [silverStart, silverEnd] = parseRange(silverRaw);
 
-    // Всички точки
-    const scores = await sheets.spreadsheets.values.get({
+    // 5) All scores & find this user
+    const scoresRes = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Актуален-Scoreboard!C8:U50'
     });
-
-    let userScore=null;
-    const all = [];
-
-    for (const r of scores.data.values||[]) {
-      const name  = r[0]?.trim().toLowerCase();
-      const score = parseFloat(r[18]);
+    let userScore = null;
+    const allScores = [];
+    for (const row of scoresRes.data.values || []) {
+      const name  = row[0]?.trim().toLowerCase();
+      const score = parseFloat(row[18]);
       if (!isNaN(score)) {
-        all.push(score);
-        if (name===userName) userScore=score;
+        allScores.push(score);
+        if (name === userName) {
+          userScore = score;
+        }
       }
     }
-    if (userScore===null) {
-      return res.status(404).json({ success:false, error:'Потребителят не е намерен.' });
+    if (userScore === null) {
+      return res.status(404).json({ success:false, error:'User not found' });
     }
 
-    const sorted = [...new Set(all)].sort((a,b)=>b-a);
-    const rank = sorted.indexOf(userScore)+1;
-    let medal='none';
-    if (rank>=goldStart && rank<=goldEnd) medal='gold';
-    else if (rank>=silverStart && rank<=silverEnd) medal='silver';
+    // 6) Determine medal
+    const uniqueDesc = Array.from(new Set(allScores)).sort((a,b)=>b-a);
+    const rank = uniqueDesc.indexOf(userScore) + 1;
+    let medalType = 'none';
+    if (rank >= goldStart && rank <= goldEnd)       medalType = 'gold';
+    else if (rank >= silverStart && rank <= silverEnd) medalType = 'silver';
 
-    // Надбавки
-    const [aVals,u5Val] = await Promise.all([
-      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range:'Performance!A5:A6' }),
-      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range:'Актуален-Scoreboard!U5' })
+    // 7) Bonuses
+    const [aValsRes, u5Res] = await Promise.all([
+      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Performance!A5:A6' }),
+      sheets.spreadsheets.values.get({ spreadsheetId: sheetId, range: 'Актуален-Scoreboard!U5' })
     ]);
-    const a5 = parseFloat(aVals.data.values?.[0]?.[0])||0;
-    const a6 = parseFloat(aVals.data.values?.[1]?.[0])||0;
-    const u5 = parseFloat(u5Val.data.values?.[0]?.[0])||1;
+    const a5 = parseFloat(aValsRes.data.values?.[0]?.[0])||0;
+    const a6 = parseFloat(aValsRes.data.values?.[1]?.[0])||0;
+    const u5 = parseFloat(u5Res.data.values?.[0]?.[0])||1;
 
-    let final = userScore*u5;
-    if (medal==='gold')   final+=a5;
-    else if (medal==='silver') final+=a6;
+    let finalScore = userScore * u5;
+    if (medalType === 'gold')   finalScore += a5;
+    else if (medalType === 'silver') finalScore += a6;
 
-    // Данни по дни
-    const monthly = await sheets.spreadsheets.values.get({
+    // 8) Daily values
+    const monthlyRes = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Актуален-Monthly!B3:BN3'
     });
-    const row = monthly.data.values?.[0] || [];
-    const dailyValues = Array.from({length:31},(_,i)=>{
-      const v=row[4+i*2];
-      return v?.toString().trim()||'--';
-    });
+    const row = monthlyRes.data.values?.[0] || [];
+    const dailyValues = Array.from({ length: daysInMonth }, (_, i) =>
+      row[4 + i*2]?.toString().trim() || '--'
+    );
 
-    res.status(200).json({
-      success:true,
-      year, monthName, monthIndex, daysInMonth,
-      score:userScore, medalType:medal, finalScore:final, dailyValues
+    // 9) Respond
+    return res.status(200).json({
+      success:     true,
+      year,
+      monthName,
+      daysInMonth,
+      score:      userScore,
+      medalType,
+      finalScore,
+      dailyValues
     });
   } catch (err) {
     console.error('getPerformance error:', err);
-    res.status(500).json({ success:false, error:'Грешка при зареждане.' });
+    return res.status(500).json({ success:false, error:'Server error loading performance' });
   }
 }

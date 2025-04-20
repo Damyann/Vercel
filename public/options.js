@@ -38,10 +38,8 @@ export async function showWorkPreferencesPanel() {
   if (document.getElementById('work-preferences-panel') || isPanelTransitioning) return;
   isPanelTransitioning = true;
 
-  const token = sessionStorage.getItem('sessionToken');
-  const resOptions = await fetch('/api/getOptions', {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  // Викаме публично endpoint-а без Authorization header
+  const resOptions = await fetch('/api/getOptions');
   const options = await resOptions.json();
 
   const container = document.querySelector('.main-content');
@@ -72,19 +70,25 @@ export async function showWorkPreferencesPanel() {
 
   const btnRow = document.createElement('div');
   btnRow.className = 'options-buttons';
-  const backBtn = document.createElement('button'); backBtn.className = 'back-button'; backBtn.textContent = 'Назад';
-  const sendBtn = document.createElement('button'); sendBtn.className = 'swap-button'; sendBtn.textContent = 'Изпрати';
+  const backBtn = document.createElement('button');
+  backBtn.className = 'back-button';
+  backBtn.textContent = 'Назад';
+  const sendBtn = document.createElement('button');
+  sendBtn.className = 'swap-button';
+  sendBtn.textContent = 'Изпрати';
   btnRow.append(backBtn, sendBtn);
 
   panel.append(title, prompt, columns, btnRow);
   container.appendChild(panel);
 
   backBtn.addEventListener('click', () => {
-    // ... (валидна логика за "Назад")
+    // валидация за "Назад"
     isPanelTransitioning = false;
   });
 
   sendBtn.addEventListener('click', async () => {
+    const token = sessionStorage.getItem('sessionToken'); // нужно само за getSave
+
     // Валидация на избор
     const nightVal = document.querySelector('input[name="night"]:checked')?.value;
     const shiftVal = document.querySelector('input[name="shift"]:checked')?.value;
@@ -100,7 +104,7 @@ export async function showWorkPreferencesPanel() {
     calendarSelections.extraShift = document.querySelector('input[name="extra"]:checked')?.value || '';
 
     try {
-      // Записваме в бекенд
+      // Записваме в бекенд (тук все още е с Authorization)
       const res = await fetch('/api/getSave', {
         method: 'POST',
         headers: {

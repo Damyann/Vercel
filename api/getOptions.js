@@ -1,17 +1,9 @@
 import { google } from 'googleapis';
 import { getGoogleAuth } from '../lib/auth.js';
-import { verifyToken } from '../lib/jwt.js';
 
-export default async function (req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  // 🔐 JWT проверка
-  const token   = req.headers.authorization?.replace('Bearer ', '');
-  const decoded = verifyToken(token);
-  if (!decoded?.user) {
-    return res.status(401).json({ error: 'Невалиден или изтекъл токен' });
   }
 
   try {
@@ -28,11 +20,9 @@ export default async function (req, res) {
     const nightCounts = (night.data.values?.[0] || []).filter(
       (v, i) => v && night.data.values?.[1]?.[i]?.toLowerCase() === 'true'
     );
-
     const shiftTypes = (shift.data.values?.[0] || []).filter(
       (v, i) => v && shift.data.values?.[1]?.[i]?.toLowerCase() === 'true'
     );
-
     const extraEnabled = extra.data.values?.[0]?.[0]?.toLowerCase() === 'true';
 
     res.status(200).json({ nightCounts, shiftTypes, extraEnabled });

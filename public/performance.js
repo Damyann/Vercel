@@ -1,91 +1,107 @@
-export async function renderPerformanceCalendar() {
-  const token = sessionStorage.getItem('sessionToken');
-  if (!token) {
-    console.error('⛔ Липсва sessionToken');
-    return;
+/**
+ * performance.js
+ * 
+ * Този файл разделя fetch и render на два метода:
+ *  - fetchPerformanceData(user)   – прави заявка към /api/getPerformance?user=...
+ *  - renderPerformanceCalendar(data) – рендерира календара веднага от вече заредените данни
+ */
+
+/**
+ * Заявка за данните за performance.
+ * @param {string} userParam – потребителското име (малки букви)
+ * @returns {Promise<object>} – JSON от API-то, или хвърля грешка
+ */
+export async function fetchPerformanceData(userParam) {
+  const res = await fetch(`/api/getPerformance?user=${encodeURIComponent(userParam)}`);
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'Неуспешно зареждане на данните');
+  }
+  return data;
+}
+
+/**
+ * Рендерира performance календара спрямо вече заредените data.
+ * @param {object} data – обект с полета monthName, daysInMonth, score, medalType, finalScore, dailyValues
+ */
+export function renderPerformanceCalendar(data) {
+  const {
+    monthName,
+    daysInMonth,
+    score,
+    medalType,
+    finalScore,
+    dailyValues
+  } = data;
+
+  const container = document.querySelector('.main-content');
+  // Изчистваме старото съдържание без innerHTML
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
   }
 
-  try {
-    const res = await fetch('/api/getPerformance', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+  const wrapper = document.createElement('div');
+  wrapper.id = 'performance-calendar';
 
-    const data = await res.json();
+  // Заглавие
+  const h2 = document.createElement('h2');
+  h2.className = 'performance-greeting';
+  h2.textContent = 'Performance';
+  wrapper.appendChild(h2);
 
-    if (!res.ok || !data.success) {
-      alert('❌ Грешка при зареждане на календара.');
-      return;
-    }
+  // Банер
+  const banner = document.createElement('div');
+  banner.className = 'performance-month-banner';
 
-    const { monthName, daysInMonth, score, medalType, finalScore, dailyValues } = data;
+  // Име на месец
+  const monthEl = document.createElement('span');
+  monthEl.className = 'performance-month-name';
+  monthEl.textContent = monthName;
+  banner.appendChild(monthEl);
 
-    const container = document.querySelector('.main-content');
-    container.innerHTML = '';
-
-    const wrapper = document.createElement('div');
-    wrapper.id = 'performance-calendar';
-
-    const heading = document.createElement('h2');
-    heading.className = 'performance-greeting';
-    heading.textContent = 'Performance';
-
-    const banner = document.createElement('div');
-    banner.className = 'performance-month-banner';
-
-    const monthEl = document.createElement('span');
-    monthEl.className = 'performance-month-name';
-    monthEl.textContent = monthName;
-
-    const scoreEl = document.createElement('span');
-    scoreEl.className = 'performance-score-badge';
-
-    let medalSrc = '';
-    if (medalType === 'gold') medalSrc = '/images/golden-medal.svg';
-    else if (medalType === 'silver') medalSrc = '/images/silver-medal.svg';
-
-    if (medalSrc) {
-      scoreEl.innerHTML = `<img src="${medalSrc}" alt="Медал" class="medal-icon"> ${score ?? ''} т.`;
-    } else {
-      scoreEl.textContent = `${score ?? ''} т.`;
-    }
-
-    const adjustedEl = document.createElement('span');
-    adjustedEl.className = 'performance-score-badge';
-    adjustedEl.textContent = `${Math.round(finalScore)} лв`;
-
-    banner.appendChild(monthEl);
-    banner.appendChild(scoreEl);
-    banner.appendChild(adjustedEl);
-
-    const grid = document.createElement('div');
-    grid.className = 'performance-grid';
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const cell = document.createElement('div');
-      cell.className = 'performance-cell';
-
-      const number = document.createElement('div');
-      number.className = 'performance-day-number';
-      number.textContent = d;
-
-      const dataEl = document.createElement('div');
-      dataEl.className = 'performance-day-data';
-      const rawValue = dailyValues?.[d - 1];
-      dataEl.textContent = rawValue && rawValue !== '' ? rawValue : '--';
-
-      cell.appendChild(number);
-      cell.appendChild(dataEl);
-      grid.appendChild(cell);
-    }
-
-    wrapper.appendChild(heading);
-    wrapper.appendChild(banner);
-    wrapper.appendChild(grid);
-    container.appendChild(wrapper);
-  } catch (err) {
-    console.error('⚠️ renderPerformanceCalendar error:', err);
-    alert('⚠️ Възникна неочаквана грешка.');
+  // Суров резултат + медал
+  const scoreEl = document.createElement('span');
+  scoreEl.className = 'performance-score-badge';
+  if (medalType === 'gold' || medalType === 'silver') {
+    const img = document.createElement('img');
+    img.src = medalType === 'gold'
+      ? '/images/golden-medal.svg'
+      : '/images/silver-medal.svg';
+    img.alt = 'Медал';
+    img.className = 'medal-icon';
+    scoreEl.appendChild(img);
   }
+  scoreEl.appendChild(document.createTextNode(` ${score} т.`));
+  banner.appendChild(scoreEl);
+
+  // Финален резултат
+  const finalEl = document.createElement('span');
+  finalEl.className = 'performance-score-badge';
+  finalEl.textContent = `${Math.round(finalScore)} лв`;
+  banner.appendChild(finalEl);
+
+  wrapper.appendChild(banner);
+
+  // Решетка с дни
+  const grid = document.createElement('div');
+  grid.className = 'performance-grid';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'performance-cell';
+
+    const num = document.createElement('div');
+    num.className = 'performance-day-number';
+    num.textContent = d;
+    cell.appendChild(num);
+
+    const val = document.createElement('div');
+    val.className = 'performance-day-data';
+    val.textContent = dailyValues[d - 1] || '--';
+    cell.appendChild(val);
+
+    grid.appendChild(cell);
+  }
+
+  wrapper.appendChild(grid);
+  container.appendChild(wrapper);
 }
