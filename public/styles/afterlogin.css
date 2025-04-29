@@ -59,7 +59,6 @@
   min-width: 140px;
 }
 
-/* 🔹 Performance (син неон) */
 .btn-performance {
   color: #00ffff;
   border: 2px solid #00ffff;
@@ -71,17 +70,17 @@
   box-shadow: 0 0 16px #00ffff88;
 }
 
-/* 🟠 Заявка (оранжев неон) */
 .btn-calendar {
-  color: #ffaa33;
-  border: 2px solid #ffaa33;
-  box-shadow: 0 0 12px #ffaa3366;
+  color: #00ff88;                      /* неоново зелено */
+  border: 2px solid #00ff88;           /* същият неонов цвят */
+  box-shadow: 0 0 12px #00ff8844;      /* полупрозрачна неонова сянка */
 }
 
 .btn-calendar:hover {
-  background-color: #ffaa3311;
-  box-shadow: 0 0 16px #ffaa33aa;
+  background-color: #00ff8822;         /* лека неонова подсветка на фона */
+  box-shadow: 0 0 16px #00ff88aa;      /* по-силна неонова сянка при hover */
 }
+
 
 .btn-calendar:disabled {
   color: #ff4444;
